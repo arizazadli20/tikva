@@ -1,26 +1,230 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
+/* ─── Design Tokens ───────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Backgrounds */
+  --black:       #0A0A0C;
+  --surface-0:   #0D0D10;
+  --surface-1:   rgba(255, 255, 255, 0.030);
+  --surface-2:   rgba(255, 255, 255, 0.055);
+  --surface-3:   rgba(255, 255, 255, 0.085);
+
+  /* Borders */
+  --border-xs:   rgba(255, 255, 255, 0.055);
+  --border-sm:   rgba(255, 255, 255, 0.090);
+  --border-md:   rgba(255, 255, 255, 0.130);
+
+  /* Typography */
+  --text-primary:   #FFFFFF;
+  --text-secondary: rgba(255, 255, 255, 0.500);
+  --text-tertiary:  rgba(255, 255, 255, 0.260);
+  --text-disabled:  rgba(255, 255, 255, 0.140);
+
+  /* Accent — used sparingly */
+  --accent:          #5CE0C6;
+  --accent-dim:      rgba(92, 224, 198, 0.120);
+  --accent-border:   rgba(92, 224, 198, 0.220);
+  --accent-text:     rgba(92, 224, 198, 0.900);
+
+  /* Semantic */
+  --warn:        rgba(255, 196, 100, 0.85);
+  --warn-dim:    rgba(255, 196, 100, 0.10);
+
+  /* Glassmorphism */
+  --glass-bg:      rgba(12, 12, 15, 0.820);
+  --glass-border:  rgba(255, 255, 255, 0.075);
+  --glass-blur:    24px;
+  --glass-shadow:  0 16px 64px rgba(0, 0, 0, 0.60), 0 1px 0 rgba(255,255,255,0.06) inset;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ─── Reset ────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; padding: 0; }
+
+html, body {
+  background-color: var(--black);
+  color: var(--text-primary);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  scroll-behavior: smooth;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ─── Scrollbar ─────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.12);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
+
+/* ─── Glass Utility ─────────────────────────────────────────── */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ─── Leaflet Overrides ─────────────────────────────────────── */
+.leaflet-container {
+  background: #080808 !important;
+  font-family: inherit;
+}
+
+/* Frosted-glass popup */
+.leaflet-popup-content-wrapper {
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 20px !important;
+  box-shadow: var(--glass-shadow) !important;
+  color: var(--text-primary) !important;
+}
+
+.leaflet-popup-tip-container { display: none !important; }
+.leaflet-popup-content { margin: 0 !important; }
+.leaflet-popup-close-button {
+  color: var(--text-tertiary) !important;
+  font-size: 18px !important;
+  top: 12px !important;
+  right: 14px !important;
+}
+.leaflet-popup-close-button:hover { color: var(--text-primary) !important; }
+
+/* Map controls */
+.leaflet-bar {
+  border: 1px solid var(--border-xs) !important;
+  border-radius: 10px !important;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4) !important;
+}
+.leaflet-bar a {
+  background: rgba(12, 12, 15, 0.9) !important;
+  border-bottom: 1px solid var(--border-xs) !important;
+  color: var(--text-secondary) !important;
+  width: 34px !important;
+  height: 34px !important;
+  line-height: 34px !important;
+  font-size: 16px !important;
+  transition: background 0.15s, color 0.15s;
+}
+.leaflet-bar a:hover {
+  background: var(--surface-2) !important;
+  color: var(--text-primary) !important;
+}
+.leaflet-bar a:last-child { border-bottom: none !important; }
+.leaflet-control-attribution {
+  background: rgba(10,10,12,0.7) !important;
+  color: rgba(255,255,255,0.25) !important;
+  font-size: 9px !important;
+  border-radius: 4px !important;
+  backdrop-filter: blur(8px);
+}
+.leaflet-control-attribution a { color: rgba(255,255,255,0.35) !important; }
+
+/* ─── Animations ─────────────────────────────────────────────── */
+@keyframes liveDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.8); }
+}
+
+@keyframes markerPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(92, 224, 198, 0.5); }
+  70%  { box-shadow: 0 0 0 18px rgba(92, 224, 198, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(92, 224, 198, 0); }
+}
+
+@keyframes markerRing {
+  0%   { transform: translate(-50%,-50%) scale(1); opacity: 0.6; }
+  100% { transform: translate(-50%,-50%) scale(3.2); opacity: 0; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes barFill {
+  from { width: 0; }
+}
+
+@keyframes spinLoader {
+  to { transform: rotate(360deg); }
+}
+
+.anim-live-dot  { animation: liveDot 2.4s ease-in-out infinite; }
+.anim-fade-up   { animation: fadeUp 0.5s ease forwards; }
+.anim-bar-fill  { animation: barFill 1s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+.anim-spin      { animation: spinLoader 0.9s linear infinite; }
+
+/* ─── Status Pills ───────────────────────────────────────────── */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pill-detected  { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.10); }
+.pill-alert     { background: rgba(255,196,100,0.10); color: rgba(255,196,100,0.8); border: 1px solid rgba(255,196,100,0.20); }
+.pill-collected { background: rgba(92,224,198,0.08); color: rgba(92,224,198,0.7);  border: 1px solid rgba(92,224,198,0.15); }
+.pill-converted { background: rgba(92,224,198,0.12); color: var(--accent-text);    border: 1px solid var(--accent-border); }
+
+/* ─── Interactive ────────────────────────────────────────────── */
+.hover-row {
+  transition: background 0.12s ease;
+  cursor: default;
+}
+.hover-row:hover { background: rgba(255,255,255,0.030); }
+
+.hover-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.hover-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+
+/* ─── Typography Helpers ─────────────────────────────────────── */
+.label-xs {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.label-sm {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+
+.data-xl {
+  font-size: 48px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.data-lg {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
 }

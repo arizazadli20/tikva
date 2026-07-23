@@ -1,0 +1,340 @@
+// ============================================================
+// TIKVA Mock Data
+// ============================================================
+// To swap for a real API, replace this file with a module that
+// exports the same `mockData` object shape, fetching from your
+// backend (Sentinel-1 scenes, detection model results, AIS, etc.)
+// ============================================================
+
+export type Port = {
+  id: string;
+  name: string;
+  lat: number;
+  lng: number;
+};
+
+export type DetectionStatus =
+  | "detected"
+  | "alert_sent"
+  | "collected"
+  | "converted";
+
+export type Detection = {
+  id: string;
+  portId: string;
+  lat: number;
+  lng: number;
+  timestamp: string;
+  confidenceScore: number;
+  areaKm2: number;
+  status: DetectionStatus;
+  alertLatencyMin: number;
+};
+
+export type KPIs = {
+  detectionAccuracy: number;
+  avgAlertLatencyMin: number;
+  conversionRate: number;
+};
+
+export type ActivityEntry = {
+  timestamp: string;
+  event: string;
+  portId: string;
+  type: "detection" | "alert" | "dispatch" | "collection" | "conversion" | "info";
+};
+
+export type ConversionEntry = {
+  date: string;
+  sorbentCollectedKg: number;
+  convertedKg: number;
+  bitumenModifierKg: number;
+  activatedCarbonKg: number;
+};
+
+export const mockData = {
+  ports: [
+    { id: "baku", name: "Baku Port", lat: 40.37, lng: 49.85 },
+    { id: "sumgait", name: "Sumgait Port", lat: 40.59, lng: 49.64 },
+    { id: "alyat", name: "Alyat Port", lat: 39.96, lng: 49.42 },
+  ] as Port[],
+
+  detections: [
+    {
+      id: "det-001",
+      portId: "baku",
+      lat: 40.368,
+      lng: 49.847,
+      timestamp: "2026-07-24T06:12:00Z",
+      confidenceScore: 0.91,
+      areaKm2: 0.42,
+      status: "converted",
+      alertLatencyMin: 14,
+    },
+    {
+      id: "det-002",
+      portId: "baku",
+      lat: 40.373,
+      lng: 49.858,
+      timestamp: "2026-07-21T14:35:00Z",
+      confidenceScore: 0.87,
+      areaKm2: 0.28,
+      status: "converted",
+      alertLatencyMin: 19,
+    },
+    {
+      id: "det-003",
+      portId: "sumgait",
+      lat: 40.592,
+      lng: 49.637,
+      timestamp: "2026-07-19T09:48:00Z",
+      confidenceScore: 0.94,
+      areaKm2: 0.61,
+      status: "collected",
+      alertLatencyMin: 12,
+    },
+    {
+      id: "det-004",
+      portId: "baku",
+      lat: 40.364,
+      lng: 49.843,
+      timestamp: "2026-07-17T17:22:00Z",
+      confidenceScore: 0.79,
+      areaKm2: 0.15,
+      status: "converted",
+      alertLatencyMin: 28,
+    },
+    {
+      id: "det-005",
+      portId: "alyat",
+      lat: 39.958,
+      lng: 49.418,
+      timestamp: "2026-07-15T04:55:00Z",
+      confidenceScore: 0.88,
+      areaKm2: 0.33,
+      status: "converted",
+      alertLatencyMin: 16,
+    },
+    {
+      id: "det-006",
+      portId: "baku",
+      lat: 40.375,
+      lng: 49.852,
+      timestamp: "2026-07-12T11:30:00Z",
+      confidenceScore: 0.82,
+      areaKm2: 0.22,
+      status: "collected",
+      alertLatencyMin: 21,
+    },
+    {
+      id: "det-007",
+      portId: "sumgait",
+      lat: 40.589,
+      lng: 49.641,
+      timestamp: "2026-07-10T08:14:00Z",
+      confidenceScore: 0.96,
+      areaKm2: 0.74,
+      status: "converted",
+      alertLatencyMin: 11,
+    },
+    {
+      id: "det-008",
+      portId: "baku",
+      lat: 40.371,
+      lng: 49.849,
+      timestamp: "2026-07-08T22:05:00Z",
+      confidenceScore: 0.85,
+      areaKm2: 0.38,
+      status: "converted",
+      alertLatencyMin: 18,
+    },
+    {
+      id: "det-009",
+      portId: "alyat",
+      lat: 39.962,
+      lng: 49.422,
+      timestamp: "2026-07-05T13:40:00Z",
+      confidenceScore: 0.78,
+      areaKm2: 0.19,
+      status: "alert_sent",
+      alertLatencyMin: 25,
+    },
+    {
+      id: "det-010",
+      portId: "baku",
+      lat: 40.366,
+      lng: 49.845,
+      timestamp: "2026-07-02T07:18:00Z",
+      confidenceScore: 0.93,
+      areaKm2: 0.55,
+      status: "converted",
+      alertLatencyMin: 13,
+    },
+  ] as Detection[],
+
+  kpis: {
+    detectionAccuracy: 0.874,
+    avgAlertLatencyMin: 18,
+    conversionRate: 0.63,
+  } as KPIs,
+
+  activityLog: [
+    {
+      timestamp: "2026-07-24T06:12:00Z",
+      event: "Oil spill detected — Baku Port — 91% confidence",
+      portId: "baku",
+      type: "detection",
+    },
+    {
+      timestamp: "2026-07-24T06:26:00Z",
+      event: "Alert sent to Port Authority response team — +14 min",
+      portId: "baku",
+      type: "alert",
+    },
+    {
+      timestamp: "2026-07-24T06:34:00Z",
+      event: "Collection team dispatched — bio-sorbent boom deployed — +22 min",
+      portId: "baku",
+      type: "dispatch",
+    },
+    {
+      timestamp: "2026-07-24T08:10:00Z",
+      event: "Sorbent collection complete — 340 kg recovered",
+      portId: "baku",
+      type: "collection",
+    },
+    {
+      timestamp: "2026-07-24T09:00:00Z",
+      event: "Pyrolysis conversion started — 340 kg saturated sorbent",
+      portId: "baku",
+      type: "conversion",
+    },
+    {
+      timestamp: "2026-07-21T14:35:00Z",
+      event: "Oil spill detected — Baku Port — 87% confidence",
+      portId: "baku",
+      type: "detection",
+    },
+    {
+      timestamp: "2026-07-21T14:54:00Z",
+      event: "Alert sent to response team — +19 min",
+      portId: "baku",
+      type: "alert",
+    },
+    {
+      timestamp: "2026-07-19T09:48:00Z",
+      event: "Oil spill detected — Sumgait Port — 94% confidence",
+      portId: "sumgait",
+      type: "detection",
+    },
+    {
+      timestamp: "2026-07-19T10:00:00Z",
+      event: "Alert sent — +12 min. Largest spill this week (0.61 km²)",
+      portId: "sumgait",
+      type: "alert",
+    },
+    {
+      timestamp: "2026-07-15T04:55:00Z",
+      event: "Oil spill detected — Alyat Port — 88% confidence",
+      portId: "alyat",
+      type: "detection",
+    },
+    {
+      timestamp: "2026-07-15T05:11:00Z",
+      event: "Alert sent — +16 min. 220 kg sorbent deployed",
+      portId: "alyat",
+      type: "alert",
+    },
+    {
+      timestamp: "2026-07-10T08:14:00Z",
+      event: "Oil spill detected — Sumgait Port — 96% confidence (highest this pilot)",
+      portId: "sumgait",
+      type: "detection",
+    },
+    {
+      timestamp: "2026-07-10T08:25:00Z",
+      event: "Alert sent — +11 min. Fastest response this pilot",
+      portId: "sumgait",
+      type: "alert",
+    },
+    {
+      timestamp: "2026-07-10T11:40:00Z",
+      event: "Conversion complete — 490 kg → 185 kg bitumen modifier + 125 kg activated carbon",
+      portId: "sumgait",
+      type: "conversion",
+    },
+  ] as ActivityEntry[],
+
+  conversionLog: [
+    {
+      date: "2026-07-02",
+      sorbentCollectedKg: 360,
+      convertedKg: 228,
+      bitumenModifierKg: 132,
+      activatedCarbonKg: 96,
+    },
+    {
+      date: "2026-07-05",
+      sorbentCollectedKg: 125,
+      convertedKg: 79,
+      bitumenModifierKg: 46,
+      activatedCarbonKg: 33,
+    },
+    {
+      date: "2026-07-08",
+      sorbentCollectedKg: 248,
+      convertedKg: 157,
+      bitumenModifierKg: 91,
+      activatedCarbonKg: 66,
+    },
+    {
+      date: "2026-07-10",
+      sorbentCollectedKg: 490,
+      convertedKg: 310,
+      bitumenModifierKg: 185,
+      activatedCarbonKg: 125,
+    },
+    {
+      date: "2026-07-12",
+      sorbentCollectedKg: 145,
+      convertedKg: 92,
+      bitumenModifierKg: 54,
+      activatedCarbonKg: 38,
+    },
+    {
+      date: "2026-07-15",
+      sorbentCollectedKg: 220,
+      convertedKg: 139,
+      bitumenModifierKg: 81,
+      activatedCarbonKg: 58,
+    },
+    {
+      date: "2026-07-17",
+      sorbentCollectedKg: 98,
+      convertedKg: 62,
+      bitumenModifierKg: 36,
+      activatedCarbonKg: 26,
+    },
+    {
+      date: "2026-07-19",
+      sorbentCollectedKg: 400,
+      convertedKg: 253,
+      bitumenModifierKg: 147,
+      activatedCarbonKg: 106,
+    },
+    {
+      date: "2026-07-21",
+      sorbentCollectedKg: 183,
+      convertedKg: 116,
+      bitumenModifierKg: 67,
+      activatedCarbonKg: 49,
+    },
+    {
+      date: "2026-07-24",
+      sorbentCollectedKg: 340,
+      convertedKg: 0,
+      bitumenModifierKg: 0,
+      activatedCarbonKg: 0,
+    },
+  ] as ConversionEntry[],
+};

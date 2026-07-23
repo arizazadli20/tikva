@@ -1,63 +1,108 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState } from "react";
+import { mockData, Port } from "@/lib/mock-data";
+import Header         from "@/components/Header";
+import StageTracker   from "@/components/StageTracker";
+import MapPanel       from "@/components/MapPanel";
+import KpiCards       from "@/components/KpiCards";
+import ActivityFeed   from "@/components/ActivityFeed";
+import ConversionTracker from "@/components/ConversionTracker";
+import HistoryTable   from "@/components/HistoryTable";
+
+export default function Dashboard() {
+  const [selectedPort, setSelectedPort] = useState<Port>(mockData.ports[0]);
+
+  const sortedDetections = [...mockData.detections].sort(
+    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+  );
+  const sortedActivity = [...mockData.activityLog].sort(
+    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+  );
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div style={{ minHeight: "100vh", background: "var(--black)" }}>
+
+      {/* ── Navigation ── */}
+      <Header
+        ports={mockData.ports}
+        selectedPort={selectedPort}
+        onPortChange={setSelectedPort}
+      />
+
+      {/* ── Pipeline Progress ── */}
+      <StageTracker />
+
+      {/* ── Map — edge-to-edge ── */}
+      <div style={{ borderBottom: "1px solid rgba(255,255,255,0.055)" }}>
+        <MapPanel port={selectedPort} detections={sortedDetections} />
+      </div>
+
+      {/* ── Main content ── */}
+      <main style={{ maxWidth: "1600px", margin: "0 auto", padding: "40px 32px 64px" }}>
+
+        {/* KPI Cards */}
+        <section style={{ marginBottom: "48px" }}>
+          <div style={{ marginBottom: "20px" }}>
+            <h2 style={{
+              fontSize: "11px",
+              fontWeight: 600,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: "rgba(255,255,255,0.25)",
+            }}>
+              Mission Performance
+            </h2>
+          </div>
+          <KpiCards kpis={mockData.kpis} />
+        </section>
+
+        {/* Divider */}
+        <div style={{ height: "1px", background: "rgba(255,255,255,0.05)", marginBottom: "48px" }} />
+
+        {/* Two-column: Activity + Conversion */}
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1.65fr",
+          gap: "24px",
+          marginBottom: "48px",
+        }}>
+          <ActivityFeed entries={sortedActivity} />
+          <ConversionTracker entries={mockData.conversionLog} />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Divider */}
+        <div style={{ height: "1px", background: "rgba(255,255,255,0.05)", marginBottom: "48px" }} />
+
+        {/* Detection History */}
+        <HistoryTable detections={sortedDetections} />
+
+        {/* Footer */}
+        <div style={{
+          marginTop: "64px",
+          paddingTop: "24px",
+          borderTop: "1px solid rgba(255,255,255,0.05)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "8px",
+        }}>
+          <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.18)", fontWeight: 400 }}>
+            TIKVA Mission Control — Pilot Phase — Data is synthetic for demonstration
+          </span>
+          <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.18)", fontWeight: 400, fontFamily: "monospace" }}>
+            Replace{" "}
+            <code style={{
+              color: "rgba(92,224,198,0.45)",
+              background: "rgba(92,224,198,0.05)",
+              padding: "1px 5px",
+              borderRadius: "4px",
+            }}>
+              lib/mock-data.ts
+            </code>{" "}
+            → live API
+          </span>
         </div>
       </main>
     </div>

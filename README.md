@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TIKVA — Mission Control Dashboard
 
-## Getting Started
+> Early Detection & Circular Recovery of Port Oil Spills
 
-First, run the development server:
+A live pitch-demo dashboard for the TIKVA satellite-and-AI concept. Visualises the full three-stage pipeline—**Detect → Collect → Convert**—using realistic mock data that is structured to be swapped for a real API with a single-file change.
+
+---
+
+## Quick Start
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+> Tested on Node 18+. No environment variables or API keys required.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Tech Stack
 
-To learn more about Next.js, take a look at the following resources:
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 16 (App Router) + TypeScript |
+| Styling | Tailwind CSS v4 |
+| Map | react-leaflet v5 + OpenStreetMap (no API key) |
+| Charts | recharts |
+| Data | Local `mock-data.ts` — zero backend |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Dashboard Sections
 
-## Deploy on Vercel
+1. **Header** — TIKVA wordmark, port selector (Baku / Sumgait / Alyat), pulsing Live badge
+2. **Pipeline Banner** — Stage 01 Detection → 02 Collection → 03 Conversion
+3. **Detection Map** — Leaflet map centred on the selected port, pulsing markers for each spill detection, translucent extent polygons, rich popup (confidence %, area, latency, status)
+4. **Mission KPIs** — 3 cards: Detection Accuracy (≥85%), Alert Latency (<30 min), Conversion Rate (≥60%) with animated progress bars
+5. **Activity Feed** — Reverse-chronological event log with colour-coded type icons
+6. **Circular Recovery Tracker** — Stacked bar chart: bitumen modifier + activated carbon + pending conversion
+7. **Detection History Table** — All 10 pilot events with sortable columns
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Going Production-Ready
+
+**One file to replace:** `lib/mock-data.ts`
+
+The file exports a single `mockData` object with typed arrays for `ports`, `detections`, `activityLog`, `conversionLog`, and a `kpis` object. In production, replace this module with one that fetches from your backend:
+
+```ts
+// lib/mock-data.ts  →  lib/live-data.ts (same export shape)
+export const mockData = await fetchFromBackend("/api/dashboard");
+```
+
+The backend would need to:
+1. Pull new **Sentinel-1 scenes** from ESA/Copernicus
+2. Run the **detection model** (SAR-based oil spill classifier)
+3. Cross-reference **AIS ship positions** and wind data to filter false positives
+4. Serve the aggregated result in the same TypeScript shape defined in `lib/mock-data.ts`
+
+No component code changes required.
+
+---
+
+## Project Structure
+
+```
+tikva/
+├── app/
+│   ├── layout.tsx          # Root layout + SEO metadata
+│   ├── page.tsx            # Main dashboard page (assembles all components)
+│   └── globals.css         # Dark theme, animations, Leaflet overrides
+├── components/
+│   ├── Header.tsx          # Wordmark, port selector, live badge
+│   ├── MapPanel.tsx        # Leaflet map, markers, popups
+│   ├── KpiCards.tsx        # 3 mission KPI cards
+│   ├── ActivityFeed.tsx    # Event log
+│   ├── ConversionTracker.tsx # Recharts stacked bar + summary
+│   └── HistoryTable.tsx    # Detection history table
+└── lib/
+    └── mock-data.ts        # ← REPLACE THIS for production
+```
+
+---
+
+## Pilot Phase Targets
+
+| Metric | Target | Current (Mock) |
+|---|---|---|
+| Detection Accuracy | ≥ 85% | 87.4% ✅ |
+| Alert Latency | < 30 min | 18 min ✅ |
+| Sorbent Conversion Rate | ≥ 60% | 63% ✅ |
