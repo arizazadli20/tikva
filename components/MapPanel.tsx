@@ -25,270 +25,186 @@ function fmtUTC(ts: string) {
   return d.toUTCString().slice(5, 22) + " UTC";
 }
 
-function createMarkerIcon(L: any, isActive: boolean) {
-  const color = "rgba(92,224,198,0.95)";
-  const size  = isActive ? 12 : 7;
+function createIcon(L: any, isActive: boolean) {
+  const color = isActive ? "#22c55e" : "#888";
+  const size  = isActive ? 10 : 7;
   const html  = `
     <div style="position:relative;width:${size * 4}px;height:${size * 4}px;display:flex;align-items:center;justify-content:center;">
       ${isActive ? `
         <div style="
           position:absolute;top:50%;left:50%;
-          width:${size * 3.8}px;height:${size * 3.8}px;
+          width:${size * 3.5}px;height:${size * 3.5}px;
           border-radius:50%;
-          border:1px solid rgba(92,224,198,0.22);
+          border:1px solid ${color}44;
           transform:translate(-50%,-50%);
-          animation:markerRing 2.4s ease-out infinite;
-        "></div>
-        <div style="
-          position:absolute;top:50%;left:50%;
-          width:${size * 2.4}px;height:${size * 2.4}px;
-          border-radius:50%;
-          border:1px solid rgba(92,224,198,0.15);
-          transform:translate(-50%,-50%);
-          animation:markerRing 2.4s ease-out 0.8s infinite;
+          animation:markerRing 2s ease-out infinite;
         "></div>
       ` : ""}
       <div style="
         width:${size}px;height:${size}px;
         border-radius:50%;
         background:${color};
-        border:${isActive ? "2px solid rgba(255,255,255,0.9)" : "1.5px solid rgba(255,255,255,0.6)"};
-        box-shadow:0 0 0 0 rgba(92,224,198,0.5);
-        ${isActive ? "animation:markerPulse 2.4s ease-out infinite;" : ""}
+        border:2px solid ${isActive ? "#fff" : "#555"};
+        ${isActive ? "animation:markerPulse 2s ease-out infinite;" : ""}
       "></div>
     </div>
   `;
-  return L.divIcon({
-    html,
-    className: "",
-    iconSize:   [size * 4, size * 4],
-    iconAnchor: [size * 2, size * 2],
-  });
+  return L.divIcon({ html, className: "", iconSize: [size * 4, size * 4], iconAnchor: [size * 2, size * 2] });
 }
 
-function popupContent(det: Detection) {
-  const confidence = Math.round(det.confidenceScore * 100);
-  const colorConf  = confidence >= 90 ? "rgba(92,224,198,0.9)" : "rgba(255,255,255,0.8)";
-
+function makePopup(det: Detection) {
+  const conf = Math.round(det.confidenceScore * 100);
+  const statusLabel = det.status.replace("_", " ").replace(/\b\w/g, c => c.toUpperCase());
   return `
-    <div style="padding:20px 22px;min-width:260px;font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif;">
-
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-        <div style="display:flex;align-items:center;gap:7px;">
-          <div style="width:6px;height:6px;border-radius:50%;background:rgba(92,224,198,0.9);"></div>
-          <span style="font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:rgba(92,224,198,0.85);">Active Spill</span>
-        </div>
-        <span style="font-size:10px;font-weight:500;color:rgba(255,255,255,0.28);font-family:monospace;">${det.id.toUpperCase()}</span>
+    <div style="padding:16px;font-family:Inter,-apple-system,sans-serif;min-width:240px;">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:14px;">
+        <div style="width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0;"></div>
+        <span style="font-size:12px;font-weight:600;color:#e5e5e5;">Active Spill · ${det.id.toUpperCase()}</span>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
         <div>
-          <div style="font-size:9.5px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin-bottom:4px;">Confidence</div>
-          <div style="font-size:32px;font-weight:700;letter-spacing:-0.02em;color:${colorConf};line-height:1;font-variant-numeric:tabular-nums;">${confidence}%</div>
+          <div style="font-size:11px;color:#666;margin-bottom:3px;">Confidence</div>
+          <div style="font-size:28px;font-weight:700;color:${conf >= 90 ? "#22c55e" : "#e5e5e5"};line-height:1;font-variant-numeric:tabular-nums;">${conf}%</div>
         </div>
         <div>
-          <div style="font-size:9.5px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin-bottom:4px;">Est. Area</div>
-          <div style="font-size:32px;font-weight:700;letter-spacing:-0.02em;color:rgba(255,255,255,0.88);line-height:1;font-variant-numeric:tabular-nums;">${det.areaKm2}</div>
-          <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:1px;">km²</div>
+          <div style="font-size:11px;color:#666;margin-bottom:3px;">Est. Area</div>
+          <div style="font-size:28px;font-weight:700;color:#e5e5e5;line-height:1;font-variant-numeric:tabular-nums;">${det.areaKm2}</div>
+          <div style="font-size:11px;color:#666;">km²</div>
         </div>
       </div>
 
-      <div style="height:1px;background:rgba(255,255,255,0.06);margin-bottom:14px;"></div>
-
-      <div style="margin-bottom:10px;">
-        <div style="font-size:9.5px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin-bottom:4px;">Detected</div>
-        <div style="font-size:12px;font-weight:400;color:rgba(255,255,255,0.65);font-family:monospace;letter-spacing:0.02em;">${fmtUTC(det.timestamp)}</div>
+      <div style="background:#1a1a1a;border:1px solid #2e2e2e;border-radius:6px;padding:10px;margin-bottom:10px;">
+        <div style="font-size:11px;color:#666;margin-bottom:3px;">Detected</div>
+        <div style="font-size:12px;color:#ccc;font-family:monospace;">${fmtUTC(det.timestamp)}</div>
       </div>
 
-      <div style="background:rgba(92,224,198,0.06);border:1px solid rgba(92,224,198,0.14);border-radius:10px;padding:10px 12px;">
-        <div style="font-size:9.5px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:rgba(92,224,198,0.65);margin-bottom:3px;">Response Time</div>
-        <div style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.80);">Alert dispatched <strong style="color:rgba(92,224,198,0.9);font-weight:700;">+${det.alertLatencyMin} min</strong> post-acquisition</div>
+      <div style="background:#0f2318;border:1px solid #1a3828;border-radius:6px;padding:10px;">
+        <div style="font-size:11px;color:#4ade80;margin-bottom:2px;">Response time</div>
+        <div style="font-size:13px;color:#e5e5e5;">Alert sent <strong style="color:#22c55e;">+${det.alertLatencyMin} min</strong> after image acquisition</div>
       </div>
+
+      <div style="margin-top:10px;font-size:11px;color:#888;">Status: <span style="color:#e5e5e5;">${statusLabel}</span></div>
     </div>
   `;
 }
 
 export default function MapPanel({ port, detections }: Props) {
-  const mapRef     = useRef<HTMLDivElement>(null);
-  const mapInst    = useRef<any>(null);
-  const markersRef = useRef<any[]>([]);
-  const polysRef   = useRef<any[]>([]);
-  const [loaded, setLoaded]   = useState(false);
+  const mapRef  = useRef<HTMLDivElement>(null);
+  const mapInst = useRef<any>(null);
+  const markers = useRef<any[]>([]);
+  const polys   = useRef<any[]>([]);
+  const [loaded, setLoaded] = useState(false);
 
-  // Init map once
   useEffect(() => {
     if (!mapRef.current || mapInst.current) return;
     let mounted = true;
-
     import("leaflet").then(({ default: L }) => {
       if (!mounted || !mapRef.current) return;
-
       delete (L.Icon.Default.prototype as any)._getIconUrl;
       L.Icon.Default.mergeOptions({
         iconUrl:       "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
         iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
         shadowUrl:     "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
       });
-
       const map = L.map(mapRef.current!, {
-        center:            [port.lat, port.lng],
-        zoom:              13,
-        zoomControl:       true,
-        attributionControl: true,
-        zoomSnap:          0.5,
+        center: [port.lat, port.lng],
+        zoom: 13,
+        zoomControl: true,
       });
-
-      // Dark, desaturated tiles
       L.tileLayer(
         "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png",
-        {
-          attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://openstreetmap.org">OpenStreetMap</a>',
-          maxZoom: 19,
-        }
+        { attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://openstreetmap.org">OpenStreetMap</a>', maxZoom: 19 }
       ).addTo(map);
-
       mapInst.current = map;
       if (mounted) setLoaded(true);
     });
-
     return () => { mounted = false; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Update markers when port/detections change
   useEffect(() => {
     if (!mapInst.current || !loaded) return;
     const map = mapInst.current;
-
-    markersRef.current.forEach(m => map.removeLayer(m));
-    polysRef.current.forEach(p  => map.removeLayer(p));
-    markersRef.current = [];
-    polysRef.current   = [];
-
-    map.setView([port.lat, port.lng], 13, { animate: true, duration: 0.7 });
+    markers.current.forEach(m => map.removeLayer(m));
+    polys.current.forEach(p   => map.removeLayer(p));
+    markers.current = [];
+    polys.current   = [];
+    map.setView([port.lat, port.lng], 13, { animate: true, duration: 0.6 });
 
     import("leaflet").then(({ default: L }) => {
-      const portDets = detections.filter(d => d.portId === port.id);
-
-      portDets.forEach((det, idx) => {
+      detections.filter(d => d.portId === port.id).forEach((det, idx) => {
         const isActive = idx === 0;
 
-        // Polygon
         const poly = L.polygon(spillPolygon(det), {
-          color:       isActive ? "rgba(92,224,198,0.6)" : "rgba(255,255,255,0.25)",
-          fillColor:   isActive ? "rgba(92,224,198,1)"   : "rgba(255,255,255,1)",
-          fillOpacity: isActive ? 0.07 : 0.03,
-          weight:      isActive ? 1    : 0.5,
-          dashArray:   isActive ? undefined : "3 6",
+          color:       isActive ? "#22c55e" : "#555",
+          fillColor:   isActive ? "#22c55e" : "#333",
+          fillOpacity: isActive ? 0.08 : 0.04,
+          weight:      isActive ? 1.5 : 0.8,
+          dashArray:   isActive ? undefined : "4 6",
         }).addTo(map);
-        polysRef.current.push(poly);
+        polys.current.push(poly);
 
-        // Marker
-        const icon   = createMarkerIcon(L, isActive);
-        const marker = L.marker([det.lat, det.lng], { icon });
-        marker.bindPopup(
-          L.popup({ maxWidth: 320, minWidth: 280, className: "" }).setContent(popupContent(det))
-        );
+        const marker = L.marker([det.lat, det.lng], { icon: createIcon(L, isActive) });
+        marker.bindPopup(L.popup({ maxWidth: 300, minWidth: 260 }).setContent(makePopup(det)));
         marker.addTo(map);
-        markersRef.current.push(marker);
+        markers.current.push(marker);
 
-        if (isActive) setTimeout(() => marker.openPopup(), 500);
+        if (isActive) setTimeout(() => marker.openPopup(), 400);
       });
     });
   }, [port, detections, loaded]);
 
   return (
-    <section style={{ position: "relative" }}>
-      {/* Loading state */}
+    <div style={{ position: "relative", borderBottom: "1px solid #2e2e2e" }}>
       {!loaded && (
         <div style={{
           position: "absolute", inset: 0, zIndex: 10,
-          background: "#0A0A0C",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          gap: "12px",
+          background: "#111", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
         }}>
-          <div className="anim-spin" style={{
-            width: "18px", height: "18px",
+          <div className="spinner" style={{
+            width: "16px", height: "16px",
             borderRadius: "50%",
-            border: "1.5px solid rgba(255,255,255,0.08)",
-            borderTopColor: "rgba(92,224,198,0.7)",
+            border: "2px solid #2e2e2e",
+            borderTopColor: "#888",
           }}/>
-          <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.35)", fontWeight: 400 }}>
-            Loading satellite map…
-          </span>
+          <span style={{ fontSize: "13px", color: "#666" }}>Loading map…</span>
         </div>
       )}
+      <div ref={mapRef} style={{ width: "100%", height: "480px" }} />
 
-      <div ref={mapRef} style={{ width: "100%", height: "520px" }} />
-
-      {/* Coordinate readout — bottom-left overlay */}
-      <div
-        className="glass"
-        style={{
-          position: "absolute",
-          bottom: "16px",
-          left: "16px",
-          zIndex: 500,
-          borderRadius: "12px",
-          padding: "8px 14px",
-          display: "flex",
-          gap: "14px",
-          alignItems: "center",
-        }}
-      >
-        {[
-          { l: "Lat", v: `${port.lat.toFixed(4)}° N` },
-          { l: "Lng", v: `${port.lng.toFixed(4)}° E` },
-          { l: "Sensor", v: "Sentinel-1 SAR" },
-        ].map((item, i) => (
-          <div key={i} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            {i > 0 && <div style={{ width: "1px", height: "14px", background: "rgba(255,255,255,0.07)" }}/>}
-            <div>
-              <div style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.25)" }}>{item.l}</div>
-              <div style={{ fontSize: "11px", fontWeight: 500, color: i === 2 ? "rgba(92,224,198,0.75)" : "rgba(255,255,255,0.65)", fontFamily: "monospace", marginTop: "1px" }}>{item.v}</div>
-            </div>
-          </div>
-        ))}
+      {/* Coords overlay */}
+      <div style={{
+        position: "absolute", bottom: "12px", left: "12px", zIndex: 500,
+        background: "#161616",
+        border: "1px solid #2e2e2e",
+        borderRadius: "6px",
+        padding: "6px 12px",
+        display: "flex",
+        gap: "12px",
+        alignItems: "center",
+        fontSize: "11px",
+        color: "#666",
+        fontFamily: "monospace",
+      }}>
+        <span>{port.lat.toFixed(4)}°N</span>
+        <span style={{ color: "#2e2e2e" }}>|</span>
+        <span>{port.lng.toFixed(4)}°E</span>
+        <span style={{ color: "#2e2e2e" }}>|</span>
+        <span style={{ color: "#888" }}>Sentinel-1 SAR</span>
       </div>
 
-      {/* Legend — bottom-right */}
-      <div
-        className="glass"
-        style={{
-          position: "absolute",
-          bottom: "16px",
-          right: "50px",
-          zIndex: 500,
-          borderRadius: "12px",
-          padding: "8px 14px",
-          display: "flex",
-          gap: "14px",
-          alignItems: "center",
-        }}
-      >
-        {[
-          { color: "rgba(92,224,198,0.85)", label: "Active detection" },
-          { color: "rgba(255,255,255,0.30)", label: "Historical" },
-        ].map(item => (
-          <div key={item.label} style={{ display: "flex", alignItems: "center", gap: "7px" }}>
-            <div style={{ width: "7px", height: "7px", borderRadius: "50%", background: item.color, flexShrink: 0 }}/>
-            <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.40)", fontWeight: 400 }}>{item.label}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* CSS for marker animations injected inline */}
       <style>{`
         @keyframes markerPulse {
-          0%   { box-shadow: 0 0 0 0 rgba(92,224,198,0.50); }
-          70%  { box-shadow: 0 0 0 16px rgba(92,224,198,0); }
-          100% { box-shadow: 0 0 0 0 rgba(92,224,198,0); }
+          0%  { box-shadow: 0 0 0 0 rgba(34,197,94,0.5); }
+          70% { box-shadow: 0 0 0 12px rgba(34,197,94,0); }
+          100%{ box-shadow: 0 0 0 0 rgba(34,197,94,0); }
         }
         @keyframes markerRing {
-          0%   { transform: translate(-50%,-50%) scale(1); opacity: 0.6; }
-          100% { transform: translate(-50%,-50%) scale(3.0); opacity: 0; }
+          0%  { transform: translate(-50%,-50%) scale(1); opacity: 0.5; }
+          100%{ transform: translate(-50%,-50%) scale(2.8); opacity: 0; }
         }
       `}</style>
-    </section>
+    </div>
   );
 }

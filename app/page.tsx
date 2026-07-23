@@ -2,106 +2,75 @@
 
 import { useState } from "react";
 import { mockData, Port } from "@/lib/mock-data";
-import Header         from "@/components/Header";
-import StageTracker   from "@/components/StageTracker";
-import MapPanel       from "@/components/MapPanel";
-import KpiCards       from "@/components/KpiCards";
-import ActivityFeed   from "@/components/ActivityFeed";
+import Header            from "@/components/Header";
+import StageTracker      from "@/components/StageTracker";
+import MapPanel          from "@/components/MapPanel";
+import KpiCards          from "@/components/KpiCards";
+import ActivityFeed      from "@/components/ActivityFeed";
 import ConversionTracker from "@/components/ConversionTracker";
-import HistoryTable   from "@/components/HistoryTable";
+import HistoryTable      from "@/components/HistoryTable";
 
 export default function Dashboard() {
   const [selectedPort, setSelectedPort] = useState<Port>(mockData.ports[0]);
 
-  const sortedDetections = [...mockData.detections].sort(
+  const detections = [...mockData.detections].sort(
     (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
   );
-  const sortedActivity = [...mockData.activityLog].sort(
+  const activity = [...mockData.activityLog].sort(
     (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
   );
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--black)" }}>
-
-      {/* ── Navigation ── */}
+    <div style={{ minHeight: "100vh", background: "#111" }}>
       <Header
         ports={mockData.ports}
         selectedPort={selectedPort}
         onPortChange={setSelectedPort}
       />
 
-      {/* ── Pipeline Progress ── */}
       <StageTracker />
 
-      {/* ── Map — edge-to-edge ── */}
-      <div style={{ borderBottom: "1px solid rgba(255,255,255,0.055)" }}>
-        <MapPanel port={selectedPort} detections={sortedDetections} />
-      </div>
+      <MapPanel port={selectedPort} detections={detections} />
 
-      {/* ── Main content ── */}
-      <main style={{ maxWidth: "1600px", margin: "0 auto", padding: "40px 32px 64px" }}>
+      <main style={{ maxWidth: "1400px", margin: "0 auto", padding: "32px 24px 64px" }}>
 
-        {/* KPI Cards */}
-        <section style={{ marginBottom: "48px" }}>
-          <div style={{ marginBottom: "20px" }}>
-            <h2 style={{
-              fontSize: "11px",
-              fontWeight: 600,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              color: "rgba(255,255,255,0.25)",
-            }}>
-              Mission Performance
-            </h2>
-          </div>
-          <KpiCards kpis={mockData.kpis} />
-        </section>
+        {/* Section label */}
+        <div style={{ marginBottom: "16px" }}>
+          <h2 style={{ fontSize: "11px", fontWeight: 600, color: "#555", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+            Performance
+          </h2>
+        </div>
+
+        <KpiCards kpis={mockData.kpis} />
 
         {/* Divider */}
-        <div style={{ height: "1px", background: "rgba(255,255,255,0.05)", marginBottom: "48px" }} />
+        <div style={{ height: "1px", background: "#222", margin: "32px 0" }} />
 
-        {/* Two-column: Activity + Conversion */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1.65fr",
-          gap: "24px",
-          marginBottom: "48px",
-        }}>
-          <ActivityFeed entries={sortedActivity} />
+        {/* Activity + Conversion */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1.7fr", gap: "20px", marginBottom: "32px" }}>
+          <ActivityFeed entries={activity} />
           <ConversionTracker entries={mockData.conversionLog} />
         </div>
 
-        {/* Divider */}
-        <div style={{ height: "1px", background: "rgba(255,255,255,0.05)", marginBottom: "48px" }} />
+        <div style={{ height: "1px", background: "#222", margin: "32px 0" }} />
 
-        {/* Detection History */}
-        <HistoryTable detections={sortedDetections} />
+        <HistoryTable detections={detections} />
 
         {/* Footer */}
         <div style={{
-          marginTop: "64px",
-          paddingTop: "24px",
-          borderTop: "1px solid rgba(255,255,255,0.05)",
+          marginTop: "48px",
+          paddingTop: "20px",
+          borderTop: "1px solid #1e1e1e",
           display: "flex",
-          alignItems: "center",
           justifyContent: "space-between",
           flexWrap: "wrap",
           gap: "8px",
         }}>
-          <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.18)", fontWeight: 400 }}>
-            TIKVA Mission Control — Pilot Phase — Data is synthetic for demonstration
+          <span style={{ fontSize: "12px", color: "#444" }}>
+            TIKVA Mission Control · Pilot Phase · Synthetic data for demonstration
           </span>
-          <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.18)", fontWeight: 400, fontFamily: "monospace" }}>
-            Replace{" "}
-            <code style={{
-              color: "rgba(92,224,198,0.45)",
-              background: "rgba(92,224,198,0.05)",
-              padding: "1px 5px",
-              borderRadius: "4px",
-            }}>
-              lib/mock-data.ts
-            </code>{" "}
-            → live API
+          <span style={{ fontSize: "12px", color: "#444", fontFamily: "monospace" }}>
+            Data source: <code style={{ color: "#666", background: "#1a1a1a", padding: "1px 5px", borderRadius: "3px" }}>lib/mock-data.ts</code>
           </span>
         </div>
       </main>
