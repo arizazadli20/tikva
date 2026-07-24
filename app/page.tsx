@@ -2,13 +2,17 @@
 
 import { useState } from "react";
 import { mockData, Port } from "@/lib/mock-data";
-import Header            from "@/components/Header";
-import StageTracker      from "@/components/StageTracker";
-import MapPanel          from "@/components/MapPanel";
-import KpiCards          from "@/components/KpiCards";
-import ActivityFeed      from "@/components/ActivityFeed";
-import ConversionTracker from "@/components/ConversionTracker";
-import HistoryTable      from "@/components/HistoryTable";
+
+import Header             from "@/components/Header";
+import StageTracker       from "@/components/StageTracker";
+import MapPanel           from "@/components/MapPanel";
+import WidgetGrid         from "@/components/WidgetGrid";
+import IncidentKpiWidget  from "@/components/IncidentKpiWidget";
+import RiskZoneWidget     from "@/components/RiskZoneWidget";
+import VesselsWidget      from "@/components/VesselsWidget";
+import ActivityFeed       from "@/components/ActivityFeed";
+import ConversionTracker  from "@/components/ConversionTracker";
+import HistoryTable       from "@/components/HistoryTable";
 
 export default function Dashboard() {
   const [selectedPort, setSelectedPort] = useState<Port>(mockData.ports[0]);
@@ -20,60 +24,86 @@ export default function Dashboard() {
     (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
   );
 
+  const widgets = [
+    {
+      id: "kpi",
+      content: <IncidentKpiWidget detections={detections} />,
+    },
+    {
+      id: "riskzone",
+      content: <RiskZoneWidget detections={detections} />,
+    },
+    {
+      id: "vessels",
+      content: <VesselsWidget vessels={mockData.vessels} port={selectedPort} />,
+    },
+    {
+      id: "activity",
+      content: <ActivityFeed entries={activity} />,
+    },
+    {
+      id: "conversion",
+      content: <ConversionTracker entries={mockData.conversionLog} />,
+    },
+    {
+      id: "history",
+      content: <HistoryTable detections={detections} />,
+    },
+  ];
+
   return (
-    <div style={{ minHeight: "100vh", background: "#111" }}>
+    <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "#111", overflow: "hidden" }}>
+
+      {/* ── Header ── */}
       <Header
         ports={mockData.ports}
         selectedPort={selectedPort}
         onPortChange={setSelectedPort}
       />
 
+      {/* ── Stage tracker sub-header ── */}
       <StageTracker />
 
-      <MapPanel port={selectedPort} detections={detections} />
-
-      <main style={{ maxWidth: "1400px", margin: "0 auto", padding: "32px 24px 64px" }}>
-
-        {/* Section label */}
-        <div style={{ marginBottom: "16px" }}>
-          <h2 style={{ fontSize: "11px", fontWeight: 600, color: "#555", textTransform: "uppercase", letterSpacing: "0.06em" }}>
-            Performance
-          </h2>
-        </div>
-
-        <KpiCards kpis={mockData.kpis} />
-
-        {/* Divider */}
-        <div style={{ height: "1px", background: "#222", margin: "32px 0" }} />
-
-        {/* Activity + Conversion */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1.7fr", gap: "20px", marginBottom: "32px" }}>
-          <ActivityFeed entries={activity} />
-          <ConversionTracker entries={mockData.conversionLog} />
-        </div>
-
-        <div style={{ height: "1px", background: "#222", margin: "32px 0" }} />
-
-        <HistoryTable detections={detections} />
-
-        {/* Footer */}
-        <div style={{
-          marginTop: "48px",
-          paddingTop: "20px",
-          borderTop: "1px solid #1e1e1e",
+      {/* ── Main split: 1/3 map + 2/3 widget grid ── */}
+      <div
+        className="dashboard-split"
+        style={{
           display: "flex",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: "8px",
-        }}>
-          <span style={{ fontSize: "12px", color: "#444" }}>
-            TIKVA Mission Control · Pilot Phase · Synthetic data for demonstration
-          </span>
-          <span style={{ fontSize: "12px", color: "#444", fontFamily: "monospace" }}>
-            Data source: <code style={{ color: "#666", background: "#1a1a1a", padding: "1px 5px", borderRadius: "3px" }}>lib/mock-data.ts</code>
-          </span>
+          flex: 1,
+          overflow: "hidden",
+          minHeight: 0,
+        }}
+      >
+        {/* Left — Map panel (33%) */}
+        <div
+          className="dashboard-map-col"
+          style={{
+            width: "33.333%",
+            flexShrink: 0,
+            borderRight: "1px solid #2e2e2e",
+            overflow: "hidden",
+          }}
+        >
+          <MapPanel
+            port={selectedPort}
+            ports={mockData.ports}
+            detections={detections}
+            onPortChange={setSelectedPort}
+          />
         </div>
-      </main>
+
+        {/* Right — Widget grid (67%) */}
+        <div
+          className="dashboard-grid-col"
+          style={{
+            flex: 1,
+            overflow: "auto",
+            minWidth: 0,
+          }}
+        >
+          <WidgetGrid widgets={widgets} />
+        </div>
+      </div>
     </div>
   );
 }

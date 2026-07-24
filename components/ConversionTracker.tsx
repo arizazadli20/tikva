@@ -45,12 +45,7 @@ export default function ConversionTracker({ entries }: Props) {
 
   return (
     <div>
-      <div style={{ marginBottom: "12px" }}>
-        <h2 style={{ fontSize: "13px", fontWeight: 600, color: "#e5e5e5" }}>Circular Recovery</h2>
-        <p style={{ fontSize: "12px", color: "#666", marginTop: "2px" }}>Sorbent collected → pyrolysis outputs</p>
-      </div>
-
-      <div style={{ background: "#1a1a1a", border: "1px solid #2e2e2e", borderRadius: "8px", padding: "20px" }}>
+      <div style={{ background: "#1a1a1a", border: "1px solid #2e2e2e", borderRadius: "8px", padding: "16px" }}>
 
         {/* Stats */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "0", marginBottom: "20px" }}>

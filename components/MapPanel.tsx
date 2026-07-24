@@ -5,7 +5,9 @@ import { Detection, Port } from "@/lib/mock-data";
 
 type Props = {
   port: Port;
+  ports: Port[];
   detections: Detection[];
+  onPortChange: (port: Port) => void;
 };
 
 function spillPolygon(det: Detection): [number, number][] {
@@ -89,7 +91,7 @@ function makePopup(det: Detection) {
   `;
 }
 
-export default function MapPanel({ port, detections }: Props) {
+export default function MapPanel({ port, ports, detections, onPortChange }: Props) {
   const mapRef  = useRef<HTMLDivElement>(null);
   const mapInst = useRef<any>(null);
   const markers = useRef<any[]>([]);
@@ -156,42 +158,103 @@ export default function MapPanel({ port, detections }: Props) {
   }, [port, detections, loaded]);
 
   return (
-    <div style={{ position: "relative", borderBottom: "1px solid #2e2e2e" }}>
-      {!loaded && (
-        <div style={{
-          position: "absolute", inset: 0, zIndex: 10,
-          background: "#111", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
-        }}>
-          <div className="spinner" style={{
-            width: "16px", height: "16px",
-            borderRadius: "50%",
-            border: "2px solid #2e2e2e",
-            borderTopColor: "#888",
-          }}/>
-          <span style={{ fontSize: "13px", color: "#666" }}>Loading map…</span>
-        </div>
-      )}
-      <div ref={mapRef} style={{ width: "100%", height: "480px" }} />
+    <div style={{ position: "relative", height: "100%", display: "flex", flexDirection: "column" }}>
 
-      {/* Coords overlay */}
+      {/* In-panel location switcher */}
       <div style={{
-        position: "absolute", bottom: "12px", left: "12px", zIndex: 500,
-        background: "#161616",
-        border: "1px solid #2e2e2e",
-        borderRadius: "6px",
-        padding: "6px 12px",
         display: "flex",
-        gap: "12px",
         alignItems: "center",
-        fontSize: "11px",
-        color: "#666",
-        fontFamily: "monospace",
+        justifyContent: "space-between",
+        padding: "10px 14px",
+        background: "#161616",
+        borderBottom: "1px solid #2e2e2e",
+        flexShrink: 0,
       }}>
-        <span>{port.lat.toFixed(4)}°N</span>
-        <span style={{ color: "#2e2e2e" }}>|</span>
-        <span>{port.lng.toFixed(4)}°E</span>
-        <span style={{ color: "#2e2e2e" }}>|</span>
-        <span style={{ color: "#888" }}>Sentinel-1 SAR</span>
+        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <circle cx="6" cy="5" r="2" stroke="#666" strokeWidth="1.2"/>
+            <path d="M6 1C3.79 1 2 2.79 2 5c0 3 4 7 4 7s4-4 4-7c0-2.21-1.79-4-4-4z" stroke="#666" strokeWidth="1.2" fill="none"/>
+          </svg>
+          <span style={{ fontSize: "11px", color: "#666", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.07em" }}>
+            Location
+          </span>
+        </div>
+
+        <div style={{ position: "relative" }}>
+          <select
+            id="map-port-selector"
+            value={port.id}
+            onChange={e => {
+              const p = ports.find(x => x.id === e.target.value);
+              if (p) onPortChange(p);
+            }}
+            style={{
+              background: "#1e1e1e",
+              border: "1px solid #2e2e2e",
+              borderRadius: "6px",
+              color: "#e5e5e5",
+              fontSize: "12px",
+              padding: "4px 28px 4px 10px",
+              cursor: "pointer",
+              outline: "none",
+              appearance: "none",
+              WebkitAppearance: "none",
+            }}
+          >
+            {ports.map(p => (
+              <option key={p.id} value={p.id} style={{ background: "#1e1e1e" }}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+          <svg
+            style={{ position: "absolute", right: "8px", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
+            width="10" height="10" viewBox="0 0 10 10" fill="none"
+          >
+            <path d="M2 3.5L5 6.5L8 3.5" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+      {/* Map container — fills remaining height */}
+      <div style={{ position: "relative", flex: 1, minHeight: 0 }}>
+        {!loaded && (
+          <div style={{
+            position: "absolute", inset: 0, zIndex: 10,
+            background: "#111", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
+          }}>
+            <div className="spinner" style={{
+              width: "16px", height: "16px",
+              borderRadius: "50%",
+              border: "2px solid #2e2e2e",
+              borderTopColor: "#888",
+            }}/>
+            <span style={{ fontSize: "13px", color: "#666" }}>Loading map…</span>
+          </div>
+        )}
+        <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
+
+        {/* Coords overlay */}
+        <div style={{
+          position: "absolute", bottom: "12px", left: "12px", zIndex: 500,
+          background: "#161616",
+          border: "1px solid #2e2e2e",
+          borderRadius: "6px",
+          padding: "6px 12px",
+          display: "flex",
+          gap: "12px",
+          alignItems: "center",
+          fontSize: "11px",
+          color: "#666",
+          fontFamily: "monospace",
+          pointerEvents: "none",
+        }}>
+          <span>{port.lat.toFixed(4)}°N</span>
+          <span style={{ color: "#2e2e2e" }}>|</span>
+          <span>{port.lng.toFixed(4)}°E</span>
+          <span style={{ color: "#2e2e2e" }}>|</span>
+          <span style={{ color: "#888" }}>Sentinel-1 SAR</span>
+        </div>
       </div>
 
       <style>{`

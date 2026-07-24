@@ -52,11 +52,26 @@ export type ConversionEntry = {
   activatedCarbonKg: number;
 };
 
+export type VesselStatus = "In port" | "Approaching" | "Transiting";
+
+export type Vessel = {
+  id: string;
+  name: string;
+  portId: string;
+  lat: number;
+  lng: number;
+  distanceKm: number;
+  speedKnots: number;
+  heading: number; // degrees 0-359
+  status: VesselStatus;
+  type: string;
+};
+
 export const mockData = {
   ports: [
-    { id: "baku", name: "Baku Port", lat: 40.37, lng: 49.85 },
-    { id: "sumgait", name: "Sumgait Port", lat: 40.59, lng: 49.64 },
-    { id: "alyat", name: "Alyat Port", lat: 39.96, lng: 49.42 },
+    { id: "baku",    name: "Baku Port",    lat: 40.37,  lng: 49.85  },
+    { id: "sumgait", name: "Sumgait Port", lat: 40.59,  lng: 49.64  },
+    { id: "alyat",   name: "Alyat Port",   lat: 39.96,  lng: 49.42  },
   ] as Port[],
 
   detections: [
@@ -337,4 +352,20 @@ export const mockData = {
       activatedCarbonKg: 0,
     },
   ] as ConversionEntry[],
+
+  vessels: [
+    // Baku Port vessels
+    { id: "v-001", name: "Kapitan Rashid",  portId: "baku",    lat: 40.372, lng: 49.856, distanceKm: 0.8,  speedKnots: 2.1,  heading: 45,  status: "Approaching", type: "Tanker" },
+    { id: "v-002", name: "Neftchi",         portId: "baku",    lat: 40.368, lng: 49.848, distanceKm: 0.3,  speedKnots: 0.0,  heading: 180, status: "In port",     type: "Supply" },
+    { id: "v-003", name: "Xazar Star",      portId: "baku",    lat: 40.380, lng: 49.870, distanceKm: 4.2,  speedKnots: 12.5, heading: 320, status: "Transiting",  type: "Cargo" },
+    { id: "v-004", name: "Sahil",           portId: "baku",    lat: 40.365, lng: 49.843, distanceKm: 1.1,  speedKnots: 0.3,  heading: 90,  status: "In port",     type: "Patrol" },
+    { id: "v-005", name: "Absheron",        portId: "baku",    lat: 40.390, lng: 49.880, distanceKm: 6.7,  speedKnots: 8.2,  heading: 215, status: "Transiting",  type: "Tanker" },
+    // Sumgait Port vessels
+    { id: "v-006", name: "Caspian Eagle",   portId: "sumgait", lat: 40.595, lng: 49.641, distanceKm: 0.5,  speedKnots: 1.0,  heading: 200, status: "Approaching", type: "Cargo" },
+    { id: "v-007", name: "Sumgait-1",       portId: "sumgait", lat: 40.590, lng: 49.638, distanceKm: 0.2,  speedKnots: 0.0,  heading: 0,   status: "In port",     type: "Supply" },
+    { id: "v-008", name: "Azeri Pride",     portId: "sumgait", lat: 40.605, lng: 49.652, distanceKm: 3.1,  speedKnots: 9.4,  heading: 160, status: "Transiting",  type: "Tanker" },
+    // Alyat Port vessels
+    { id: "v-009", name: "Southern Cross",  portId: "alyat",   lat: 39.962, lng: 49.424, distanceKm: 0.6,  speedKnots: 1.8,  heading: 30,  status: "Approaching", type: "Cargo" },
+    { id: "v-010", name: "Alyat Ranger",    portId: "alyat",   lat: 39.958, lng: 49.420, distanceKm: 0.2,  speedKnots: 0.0,  heading: 270, status: "In port",     type: "Patrol" },
+  ] as Vessel[],
 };

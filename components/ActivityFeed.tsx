@@ -31,17 +31,6 @@ function portName(id: string) {
 export default function ActivityFeed({ entries }: Props) {
   return (
     <div>
-      <div style={{ marginBottom: "12px" }}>
-        <h2 style={{ fontSize: "13px", fontWeight: 600, color: "#e5e5e5" }}>Activity Log</h2>
-        <p style={{ fontSize: "12px", color: "#666", marginTop: "2px" }}>Latest events</p>
-      </div>
-
-      <div style={{
-        background: "#1a1a1a",
-        border: "1px solid #2e2e2e",
-        borderRadius: "8px",
-        overflow: "hidden",
-      }}>
         {entries.map((entry, i) => {
           const dotColor = COLORS[entry.type] ?? "#555";
           return (
@@ -78,7 +67,6 @@ export default function ActivityFeed({ entries }: Props) {
             </div>
           );
         })}
-      </div>
     </div>
   );
 }

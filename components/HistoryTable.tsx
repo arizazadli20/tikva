@@ -28,22 +28,6 @@ const STATUS: Record<string, { label: string; cls: string }> = {
 export default function HistoryTable({ detections }: Props) {
   return (
     <div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
-        <div>
-          <h2 style={{ fontSize: "13px", fontWeight: 600, color: "#e5e5e5" }}>Detection History</h2>
-          <p style={{ fontSize: "12px", color: "#666", marginTop: "2px" }}>Pilot phase — all events</p>
-        </div>
-        <span style={{
-          fontSize: "11px",
-          color: "#666",
-          background: "#1e1e1e",
-          border: "1px solid #2e2e2e",
-          borderRadius: "4px",
-          padding: "3px 8px",
-        }}>
-          {detections.length} events
-        </span>
-      </div>
 
       <div style={{ background: "#1a1a1a", border: "1px solid #2e2e2e", borderRadius: "8px", overflow: "hidden" }}>
         {/* Header */}
