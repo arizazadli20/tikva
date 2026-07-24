@@ -29,17 +29,17 @@ export default function HistoryTable({ detections }: Props) {
   return (
     <div>
 
-      <div style={{ background: "#1a1a1a", border: "1px solid #2e2e2e", borderRadius: "8px", overflow: "hidden" }}>
+      <div style={{ background: "var(--glass-bg)", border: "1px solid var(--glass-border)", borderRadius: "8px", overflow: "hidden" }}>
         {/* Header */}
         <div style={{
           display: "grid",
           gridTemplateColumns: "1.5fr 1.2fr 90px 90px 90px 120px",
           padding: "10px 16px",
-          borderBottom: "1px solid #2e2e2e",
-          background: "#141414",
+          borderBottom: "1px solid var(--glass-border)",
+          background: "var(--bg-base)",
         }}>
           {["Date", "Port", "Confidence", "Area km²", "Alert", "Status"].map(h => (
-            <span key={h} style={{ fontSize: "11px", color: "#555", fontWeight: 500 }}>{h}</span>
+            <span key={h} style={{ fontSize: "11px", color: "var(--text-secondary)", fontWeight: 500 }}>{h}</span>
           ))}
         </div>
 
@@ -55,34 +55,34 @@ export default function HistoryTable({ detections }: Props) {
                 display: "grid",
                 gridTemplateColumns: "1.5fr 1.2fr 90px 90px 90px 120px",
                 padding: "11px 16px",
-                borderBottom: i < detections.length - 1 ? "1px solid #1e1e1e" : "none",
+                borderBottom: i < detections.length - 1 ? "1px solid var(--glass-border-light)" : "none",
                 alignItems: "center",
               }}
             >
               <div>
-                <div style={{ fontSize: "13px", color: "#ccc" }}>{fmtDate(det.timestamp)}</div>
-                <div style={{ fontSize: "11px", color: "#555", fontFamily: "monospace" }}>{fmtTime(det.timestamp)}</div>
+                <div style={{ fontSize: "13px", color: "var(--text-primary)" }}>{fmtDate(det.timestamp)}</div>
+                <div style={{ fontSize: "11px", color: "var(--text-secondary)", fontFamily: "monospace" }}>{fmtTime(det.timestamp)}</div>
               </div>
 
-              <div style={{ fontSize: "13px", color: "#888" }}>{portName(det.portId)}</div>
+              <div style={{ fontSize: "13px", color: "var(--text-secondary)" }}>{portName(det.portId)}</div>
 
               <div style={{
                 fontSize: "13px",
                 fontWeight: 600,
-                color: conf >= 90 ? "#22c55e" : conf >= 80 ? "#ccc" : "#d4a017",
+                color: conf >= 90 ? "var(--color-low)" : conf >= 80 ? "var(--text-primary)" : "var(--color-med)",
                 fontVariantNumeric: "tabular-nums",
               }}>
                 {conf}%
               </div>
 
-              <div style={{ fontSize: "13px", color: "#888", fontVariantNumeric: "tabular-nums" }}>
+              <div style={{ fontSize: "13px", color: "var(--text-secondary)", fontVariantNumeric: "tabular-nums" }}>
                 {det.areaKm2} km²
               </div>
 
               <div style={{
                 fontSize: "13px",
                 fontWeight: 500,
-                color: det.alertLatencyMin <= 15 ? "#22c55e" : det.alertLatencyMin <= 25 ? "#888" : "#d4a017",
+                color: det.alertLatencyMin <= 15 ? "var(--color-low)" : det.alertLatencyMin <= 25 ? "var(--text-secondary)" : "var(--color-med)",
                 fontVariantNumeric: "tabular-nums",
               }}>
                 +{det.alertLatencyMin} min

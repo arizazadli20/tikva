@@ -1,25 +1,35 @@
 "use client";
 
 import { Detection } from "@/lib/mock-data";
+import { TrendingUp, TrendingDown, Minus, ShieldAlert } from "lucide-react";
 
 type Props = { detections: Detection[] };
 
 function StatCard({
-  id, label, value, color, sublabel,
+  id, label, value, color, sublabel, trend
 }: {
-  id: string; label: string; value: string | number; color: string; sublabel?: string;
+  id: string; label: string; value: string | number; color: string; sublabel?: string; trend?: "up" | "down" | "flat";
 }) {
   return (
     <div id={id} style={{
-      padding: "14px 16px",
-      borderBottom: "1px solid #222",
+      padding: "12px 14px",
+      borderBottom: "1px solid var(--glass-border)",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      height: "100%"
     }}>
-      <div style={{ fontSize: "11px", color: "#666", marginBottom: "6px", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.04em" }}>
-        {label}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
+        <div style={{ fontSize: "11px", color: "var(--text-secondary)", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+          {label}
+        </div>
+        {trend === "up" && <TrendingUp size={12} color="var(--color-high)" opacity={0.8} />}
+        {trend === "down" && <TrendingDown size={12} color="var(--color-low)" opacity={0.8} />}
+        {trend === "flat" && <Minus size={12} color="var(--text-secondary)" opacity={0.8} />}
       </div>
       <div style={{
         fontSize: "32px",
-        fontWeight: 700,
+        fontWeight: 300,
         color,
         lineHeight: 1,
         fontVariantNumeric: "tabular-nums",
@@ -28,7 +38,7 @@ function StatCard({
         {value}
       </div>
       {sublabel && (
-        <div style={{ fontSize: "11px", color: "#555", marginTop: "4px" }}>{sublabel}</div>
+        <div style={{ fontSize: "10px", color: "var(--text-secondary)", marginTop: "4px", fontWeight: 500 }}>{sublabel}</div>
       )}
     </div>
   );
@@ -42,35 +52,36 @@ export default function IncidentKpiWidget({ detections }: Props) {
   const totalArea = detections.reduce((sum, d) => sum + d.areaKm2, 0).toFixed(2);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column" }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", borderBottom: "1px solid #1e1e1e" }}>
-        <div style={{ borderRight: "1px solid #1e1e1e" }}>
-          <StatCard id="kpi-active"  label="Active"   value={active}   color={active > 0 ? "#ef4444" : "#22c55e"} sublabel={active > 0 ? "Needs attention" : "All clear"} />
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", borderBottom: "1px solid var(--glass-border)" }}>
+        <div style={{ borderRight: "1px solid var(--glass-border)" }}>
+          <StatCard id="kpi-active"  label="Active"   value={active}   color={active > 0 ? "var(--color-high)" : "var(--color-low)"} sublabel={active > 0 ? "Needs attention" : "All clear"} trend={active > 0 ? "up" : "flat"} />
         </div>
         <div>
-          <StatCard id="kpi-cleaned" label="Cleaned"  value={cleaned}  color="#22c55e" sublabel="collected + converted" />
+          <StatCard id="kpi-cleaned" label="Cleaned"  value={cleaned}  color="var(--color-low)" sublabel="collected + converted" trend="up" />
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", borderBottom: "1px solid #1e1e1e" }}>
-        <div style={{ borderRight: "1px solid #1e1e1e" }}>
-          <StatCard id="kpi-high"   label="High Risk"   value={high}   color="#ef4444" />
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", borderBottom: "1px solid var(--glass-border)" }}>
+        <div style={{ borderRight: "1px solid var(--glass-border)" }}>
+          <StatCard id="kpi-high"   label="High Risk"   value={high}   color="var(--color-high)" trend="up" />
         </div>
-        <div style={{ borderRight: "1px solid #1e1e1e" }}>
-          <StatCard id="kpi-medium" label="Med Risk"    value={medium} color="#f59e0b" />
+        <div style={{ borderRight: "1px solid var(--glass-border)" }}>
+          <StatCard id="kpi-medium" label="Med Risk"    value={medium} color="var(--color-med)" trend="flat" />
         </div>
         <div>
-          <StatCard id="kpi-total"  label="Total" value={detections.length} color="#ccc" />
+          <StatCard id="kpi-total"  label="Total Logs" value={detections.length} color="var(--text-primary)" trend="up" />
         </div>
       </div>
 
-      <div>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
         <StatCard
           id="kpi-area"
           label="Total Spill Area"
           value={`${totalArea}`}
-          color="#ccc"
-          sublabel="km² cumulative"
+          color="var(--text-primary)"
+          sublabel="km² cumulative impact"
+          trend="down"
         />
       </div>
     </div>

@@ -5,24 +5,26 @@ import { ReactNode } from "react";
 type Props = {
   title: string;
   children: ReactNode;
-  /** Pass the drag handle class here so react-grid-layout picks it up */
+  icon?: ReactNode;
   dragHandleClass?: string;
 };
 
-export default function WidgetCard({ title, children, dragHandleClass = "widget-header" }: Props) {
+export default function WidgetCard({ title, children, icon, dragHandleClass = "widget-header" }: Props) {
   return (
     <div className="widget-card">
-      {/* Drag handle — react-grid-layout targets this class */}
       <div className={dragHandleClass}>
-        <span style={{
-          fontSize: "11px",
-          fontWeight: 600,
-          color: "#666",
-          textTransform: "uppercase",
-          letterSpacing: "0.07em",
-        }}>
-          {title}
-        </span>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          {icon && <div style={{ color: "var(--accent-teal)", display: "flex", opacity: 0.8 }}>{icon}</div>}
+          <span style={{
+            fontSize: "11px",
+            fontWeight: 600,
+            color: "var(--text-secondary)",
+            textTransform: "uppercase",
+            letterSpacing: "0.07em",
+          }}>
+            {title}
+          </span>
+        </div>
         {/* Six-dot drag grip */}
         <svg
           className="drag-dots"

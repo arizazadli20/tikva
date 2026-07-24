@@ -8,6 +8,8 @@ type Props = {
   ports: Port[];
   detections: Detection[];
   onPortChange: (port: Port) => void;
+  hideHeader?: boolean;
+  mapTheme?: 'dark' | 'light' | 'satellite';
 };
 
 function spillPolygon(det: Detection): [number, number][] {
@@ -28,7 +30,7 @@ function fmtUTC(ts: string) {
 }
 
 function createIcon(L: any, isActive: boolean) {
-  const color = isActive ? "#22c55e" : "#888";
+  const color = isActive ? "var(--color-low)" : "var(--text-secondary)";
   const size  = isActive ? 10 : 7;
   const html  = `
     <div style="position:relative;width:${size * 4}px;height:${size * 4}px;display:flex;align-items:center;justify-content:center;">
@@ -46,7 +48,7 @@ function createIcon(L: any, isActive: boolean) {
         width:${size}px;height:${size}px;
         border-radius:50%;
         background:${color};
-        border:2px solid ${isActive ? "#fff" : "#555"};
+        border:2px solid ${isActive ? "#fff" : "var(--border-muted)"};
         ${isActive ? "animation:markerPulse 2s ease-out infinite;" : ""}
       "></div>
     </div>
@@ -60,42 +62,43 @@ function makePopup(det: Detection) {
   return `
     <div style="padding:16px;font-family:Inter,-apple-system,sans-serif;min-width:240px;">
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:14px;">
-        <div style="width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0;"></div>
-        <span style="font-size:12px;font-weight:600;color:#e5e5e5;">Active Spill · ${det.id.toUpperCase()}</span>
+        <div style="width:6px;height:6px;border-radius:50%;background:var(--color-low);flex-shrink:0;"></div>
+        <span style="font-size:12px;font-weight:600;color:var(--text-primary);">Active Spill · ${det.id.toUpperCase()}</span>
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
         <div>
-          <div style="font-size:11px;color:#666;margin-bottom:3px;">Confidence</div>
-          <div style="font-size:28px;font-weight:700;color:${conf >= 90 ? "#22c55e" : "#e5e5e5"};line-height:1;font-variant-numeric:tabular-nums;">${conf}%</div>
+          <div style="font-size:11px;color:var(--text-secondary);margin-bottom:3px;">Confidence</div>
+          <div style="font-size:28px;font-weight:700;color:${conf >= 90 ? "var(--color-low)" : "var(--text-primary)"};line-height:1;font-variant-numeric:tabular-nums;">${conf}%</div>
         </div>
         <div>
-          <div style="font-size:11px;color:#666;margin-bottom:3px;">Est. Area</div>
-          <div style="font-size:28px;font-weight:700;color:#e5e5e5;line-height:1;font-variant-numeric:tabular-nums;">${det.areaKm2}</div>
-          <div style="font-size:11px;color:#666;">km²</div>
+          <div style="font-size:11px;color:var(--text-secondary);margin-bottom:3px;">Est. Area</div>
+          <div style="font-size:28px;font-weight:700;color:var(--text-primary);line-height:1;font-variant-numeric:tabular-nums;">${det.areaKm2}</div>
+          <div style="font-size:11px;color:var(--text-secondary);">km²</div>
         </div>
       </div>
 
-      <div style="background:#1a1a1a;border:1px solid #2e2e2e;border-radius:6px;padding:10px;margin-bottom:10px;">
-        <div style="font-size:11px;color:#666;margin-bottom:3px;">Detected</div>
-        <div style="font-size:12px;color:#ccc;font-family:monospace;">${fmtUTC(det.timestamp)}</div>
+      <div style="background:var(--bg-base);border:1px solid var(--glass-border);border-radius:6px;padding:10px;margin-bottom:10px;">
+        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:3px;">Detected</div>
+        <div style="font-size:12px;color:var(--text-primary);font-family:monospace;">${fmtUTC(det.timestamp)}</div>
       </div>
 
-      <div style="background:#0f2318;border:1px solid #1a3828;border-radius:6px;padding:10px;">
-        <div style="font-size:11px;color:#4ade80;margin-bottom:2px;">Response time</div>
-        <div style="font-size:13px;color:#e5e5e5;">Alert sent <strong style="color:#22c55e;">+${det.alertLatencyMin} min</strong> after image acquisition</div>
+      <div style="background:rgba(34, 197, 94, 0.1);border:1px solid rgba(34, 197, 94, 0.2);border-radius:6px;padding:10px;">
+        <div style="font-size:11px;color:var(--color-low);margin-bottom:2px;">Response time</div>
+        <div style="font-size:13px;color:var(--text-primary);">Alert sent <strong style="color:var(--color-low);">+${det.alertLatencyMin} min</strong> after image acquisition</div>
       </div>
 
-      <div style="margin-top:10px;font-size:11px;color:#888;">Status: <span style="color:#e5e5e5;">${statusLabel}</span></div>
+      <div style="margin-top:10px;font-size:11px;color:var(--text-secondary);">Status: <span style="color:var(--text-primary);">${statusLabel}</span></div>
     </div>
   `;
 }
 
-export default function MapPanel({ port, ports, detections, onPortChange }: Props) {
+export default function MapPanel({ port, ports, detections, onPortChange, hideHeader = false, mapTheme = 'dark' }: Props) {
   const mapRef  = useRef<HTMLDivElement>(null);
   const mapInst = useRef<any>(null);
   const markers = useRef<any[]>([]);
   const polys   = useRef<any[]>([]);
+  const tileLayerRef = useRef<any>(null);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -112,19 +115,44 @@ export default function MapPanel({ port, ports, detections, onPortChange }: Prop
       const map = L.map(mapRef.current!, {
         center: [port.lat, port.lng],
         zoom: 13,
-        zoomControl: true,
+        zoomControl: false, // We'll reposition it via CSS or keep default top-left
       });
-      L.tileLayer(
-        "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-        { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>', maxZoom: 19 }
-      ).addTo(map);
+      L.control.zoom({ position: 'topleft' }).addTo(map);
+      
       mapInst.current = map;
+      
+      // Auto-resize observer to fix Immersive mode gaps
+      const ro = new ResizeObserver(() => {
+        map.invalidateSize();
+      });
+      ro.observe(mapRef.current);
+
       if (mounted) setLoaded(true);
     });
     return () => { mounted = false; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Handle Tile Theme
+  useEffect(() => {
+    if (!mapInst.current || !loaded) return;
+    const map = mapInst.current;
+
+    import("leaflet").then(({ default: L }) => {
+      if (tileLayerRef.current) {
+        map.removeLayer(tileLayerRef.current);
+      }
+      const tileUrl = 
+        mapTheme === 'satellite' ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' :
+        mapTheme === 'light' ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png' :
+        'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+      
+      tileLayerRef.current = L.tileLayer(tileUrl, { maxZoom: 19 }).addTo(map);
+      tileLayerRef.current.bringToBack();
+    });
+  }, [mapTheme, loaded]);
+
+  // Handle markers
   useEffect(() => {
     if (!mapInst.current || !loaded) return;
     const map = mapInst.current;
@@ -139,8 +167,8 @@ export default function MapPanel({ port, ports, detections, onPortChange }: Prop
         const isActive = idx === 0;
 
         const poly = L.polygon(spillPolygon(det), {
-          color:       isActive ? "#22c55e" : "#555",
-          fillColor:   isActive ? "#22c55e" : "#333",
+          color:       isActive ? "var(--color-low)" : "var(--border-muted)",
+          fillColor:   isActive ? "var(--color-low)" : "var(--bg-base)",
           fillOpacity: isActive ? 0.08 : 0.04,
           weight:      isActive ? 1.5 : 0.8,
           dashArray:   isActive ? undefined : "4 6",
@@ -158,102 +186,107 @@ export default function MapPanel({ port, ports, detections, onPortChange }: Prop
   }, [port, detections, loaded]);
 
   return (
-    <div style={{ position: "relative", height: "100%", display: "flex", flexDirection: "column" }}>
+    <div style={{ position: "relative", height: "100%", width: "100%", display: "flex", flexDirection: "column" }}>
 
       {/* In-panel location switcher */}
-      <div style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "10px 14px",
-        background: "#161616",
-        borderBottom: "1px solid #2e2e2e",
-        flexShrink: 0,
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <circle cx="6" cy="5" r="2" stroke="#666" strokeWidth="1.2"/>
-            <path d="M6 1C3.79 1 2 2.79 2 5c0 3 4 7 4 7s4-4 4-7c0-2.21-1.79-4-4-4z" stroke="#666" strokeWidth="1.2" fill="none"/>
-          </svg>
-          <span style={{ fontSize: "11px", color: "#666", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.07em" }}>
-            Location
-          </span>
-        </div>
+      {!hideHeader && (
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "10px 14px",
+          background: "var(--glass-bg)",
+          borderBottom: "1px solid var(--glass-border)",
+          flexShrink: 0,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <circle cx="6" cy="5" r="2" stroke="var(--text-secondary)" strokeWidth="1.2"/>
+              <path d="M6 1C3.79 1 2 2.79 2 5c0 3 4 7 4 7s4-4 4-7c0-2.21-1.79-4-4-4z" stroke="var(--text-secondary)" strokeWidth="1.2" fill="none"/>
+            </svg>
+            <span style={{ fontSize: "11px", color: "var(--text-secondary)", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.07em" }}>
+              Location
+            </span>
+          </div>
 
-        <div style={{ position: "relative" }}>
-          <select
-            id="map-port-selector"
-            value={port.id}
-            onChange={e => {
-              const p = ports.find(x => x.id === e.target.value);
-              if (p) onPortChange(p);
-            }}
-            style={{
-              background: "#1e1e1e",
-              border: "1px solid #2e2e2e",
-              borderRadius: "6px",
-              color: "#e5e5e5",
-              fontSize: "12px",
-              padding: "4px 28px 4px 10px",
-              cursor: "pointer",
-              outline: "none",
-              appearance: "none",
-              WebkitAppearance: "none",
-            }}
-          >
-            {ports.map(p => (
-              <option key={p.id} value={p.id} style={{ background: "#1e1e1e" }}>
-                {p.name}
-              </option>
-            ))}
-          </select>
-          <svg
-            style={{ position: "absolute", right: "8px", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
-            width="10" height="10" viewBox="0 0 10 10" fill="none"
-          >
-            <path d="M2 3.5L5 6.5L8 3.5" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+          <div style={{ position: "relative" }}>
+            <select
+              id="map-port-selector"
+              value={port.id}
+              onChange={e => {
+                const p = ports.find(x => x.id === e.target.value);
+                if (p) onPortChange(p);
+              }}
+              style={{
+                background: "var(--glass-bg)",
+                border: "1px solid var(--glass-border)",
+                borderRadius: "6px",
+                color: "var(--text-primary)",
+                fontSize: "12px",
+                padding: "4px 28px 4px 10px",
+                cursor: "pointer",
+                outline: "none",
+                appearance: "none",
+                WebkitAppearance: "none",
+              }}
+            >
+              {ports.map(p => (
+                <option key={p.id} value={p.id} style={{ background: "var(--bg-base)" }}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+            <svg
+              style={{ position: "absolute", right: "8px", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
+              width="10" height="10" viewBox="0 0 10 10" fill="none"
+            >
+              <path d="M2 3.5L5 6.5L8 3.5" stroke="var(--text-secondary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Map container — fills remaining height */}
-      <div style={{ position: "relative", flex: 1, minHeight: 0 }}>
+      <div style={{ position: "absolute", inset: (hideHeader ? 0 : "44px 0 0 0"), zIndex: 0 }}>
         {!loaded && (
           <div style={{
             position: "absolute", inset: 0, zIndex: 10,
-            background: "#111", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
+            background: "var(--bg-base)", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
           }}>
             <div className="spinner" style={{
               width: "16px", height: "16px",
               borderRadius: "50%",
-              border: "2px solid #2e2e2e",
-              borderTopColor: "#888",
+              border: "2px solid var(--glass-border)",
+              borderTopColor: "var(--text-primary)",
             }}/>
-            <span style={{ fontSize: "13px", color: "#666" }}>Loading map…</span>
+            <span style={{ fontSize: "13px", color: "var(--text-secondary)" }}>Loading map…</span>
           </div>
         )}
         <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
 
+
+
         {/* Coords overlay */}
         <div style={{
           position: "absolute", bottom: "12px", left: "12px", zIndex: 500,
-          background: "#161616",
-          border: "1px solid #2e2e2e",
+          background: "var(--glass-bg)",
+          border: "1px solid var(--glass-border)",
           borderRadius: "6px",
           padding: "6px 12px",
           display: "flex",
           gap: "12px",
           alignItems: "center",
           fontSize: "11px",
-          color: "#666",
+          color: "var(--text-secondary)",
           fontFamily: "monospace",
           pointerEvents: "none",
+          backdropFilter: "blur(4px)"
         }}>
           <span>{port.lat.toFixed(4)}°N</span>
-          <span style={{ color: "#2e2e2e" }}>|</span>
+          <span style={{ color: "var(--border-muted)" }}>|</span>
           <span>{port.lng.toFixed(4)}°E</span>
-          <span style={{ color: "#2e2e2e" }}>|</span>
-          <span style={{ color: "#888" }}>Sentinel-1 SAR</span>
+          <span style={{ color: "var(--border-muted)" }}>|</span>
+          <span style={{ color: "var(--text-primary)" }}>Sentinel-1 SAR</span>
         </div>
       </div>
 

@@ -1,33 +1,9 @@
 "use client";
 
 import { ConversionEntry } from "@/lib/mock-data";
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid,
-  Tooltip, Legend, ResponsiveContainer,
-} from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 type Props = { entries: ConversionEntry[] };
-
-const Tip = ({ active, payload, label }: any) => {
-  if (!active || !payload?.length) return null;
-  return (
-    <div style={{
-      background: "#1c1c1c",
-      border: "1px solid #2e2e2e",
-      borderRadius: "6px",
-      padding: "10px 14px",
-      fontSize: "12px",
-    }}>
-      <div style={{ color: "#888", marginBottom: "6px", fontWeight: 500 }}>{label}</div>
-      {payload.map((p: any) => (
-        <div key={p.name} style={{ display: "flex", justifyContent: "space-between", gap: "16px", color: "#ccc", marginBottom: "2px" }}>
-          <span style={{ color: "#888" }}>{p.name}</span>
-          <span style={{ color: "#e5e5e5", fontWeight: 600 }}>{p.value} kg</span>
-        </div>
-      ))}
-    </div>
-  );
-};
 
 export default function ConversionTracker({ entries }: Props) {
   const totals = entries.reduce(
@@ -36,55 +12,65 @@ export default function ConversionTracker({ entries }: Props) {
   );
   const pct = Math.round((totals.conv / totals.col) * 100);
 
-  const data = entries.map(e => ({
-    date: new Date(e.date).toLocaleDateString("en-GB", { month: "short", day: "numeric" }),
-    "Bitumen": e.bitumenModifierKg,
-    "Activated Carbon": e.activatedCarbonKg,
-    "Pending": e.sorbentCollectedKg - e.convertedKg,
-  }));
+  const data = [
+    { name: "Converted", value: pct, color: "var(--text-primary)" },
+    { name: "Pending", value: 100 - pct, color: "var(--glass-border-light)" }
+  ];
 
   return (
-    <div>
-      <div style={{ background: "#1a1a1a", border: "1px solid #2e2e2e", borderRadius: "8px", padding: "16px" }}>
+    <div style={{ height: "100%", display: "flex", flexDirection: "column", padding: "12px 16px" }}>
+      {/* Stats Row */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "0", marginBottom: "8px", background: "var(--glass-bg)", borderRadius: "8px", padding: "10px", border: "1px solid var(--glass-border)", flexShrink: 0 }}>
+        {[
+          { l: "Collected",  v: `${totals.col.toLocaleString()} kg`, c: "var(--text-primary)" },
+          { l: "Converted",  v: `${totals.conv.toLocaleString()} kg`, c: "var(--text-primary)" },
+          { l: "Bitumen",    v: `${totals.bit.toLocaleString()} kg`, c: "var(--text-secondary)" },
+          { l: "Activated C", v: `${totals.ac.toLocaleString()} kg`, c: "var(--text-secondary)" },
+        ].map((s, i) => (
+          <div key={s.l} style={{ paddingLeft: i > 0 ? "12px" : 0, borderLeft: i > 0 ? "1px solid var(--glass-border)" : "none" }}>
+            <div style={{ fontSize: "10px", color: "var(--text-secondary)", marginBottom: "2px", textTransform: "uppercase", letterSpacing: "0.05em" }}>{s.l}</div>
+            <div style={{ fontSize: "13px", fontWeight: 600, color: s.c, fontVariantNumeric: "tabular-nums" }}>{s.v}</div>
+          </div>
+        ))}
+      </div>
 
-        {/* Stats */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "0", marginBottom: "20px" }}>
-          {[
-            { l: "Collected",  v: `${totals.col.toLocaleString()} kg`, c: "#ccc" },
-            { l: "Converted",  v: `${totals.conv.toLocaleString()} kg`, c: "#22c55e" },
-            { l: "Bitumen",    v: `${totals.bit.toLocaleString()} kg`, c: "#ccc" },
-            { l: "Activated C", v: `${totals.ac.toLocaleString()} kg`, c: "#ccc" },
-          ].map((s, i) => (
-            <div key={s.l} style={{ paddingLeft: i > 0 ? "16px" : 0, borderLeft: i > 0 ? "1px solid #2e2e2e" : "none" }}>
-              <div style={{ fontSize: "11px", color: "#666", marginBottom: "3px" }}>{s.l}</div>
-              <div style={{ fontSize: "18px", fontWeight: 700, color: s.c, fontVariantNumeric: "tabular-nums" }}>{s.v}</div>
-            </div>
-          ))}
-        </div>
-
-        <ResponsiveContainer width="100%" height={200}>
-          <BarChart data={data} margin={{ top: 0, right: 0, left: -20, bottom: 0 }} barCategoryGap="35%">
-            <CartesianGrid strokeDasharray="2 4" stroke="#222" vertical={false} />
-            <XAxis dataKey="date" tick={{ fill: "#555", fontSize: 10 }} axisLine={{ stroke: "#2e2e2e" }} tickLine={false} />
-            <YAxis tick={{ fill: "#555", fontSize: 10 }} axisLine={false} tickLine={false} unit="kg" width={44} />
-            <Tooltip content={<Tip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
-            <Legend wrapperStyle={{ fontSize: "11px", color: "#666", paddingTop: "12px" }} />
-            <Bar dataKey="Bitumen"          stackId="a" fill="#3b82f6" radius={[0,0,0,0]} />
-            <Bar dataKey="Activated Carbon" stackId="a" fill="#6366f1" radius={[0,0,0,0]} />
-            <Bar dataKey="Pending"          stackId="a" fill="#2a2a2a" radius={[2,2,0,0]} />
-          </BarChart>
+      {/* Radial Gauge */}
+      <div style={{ flex: 1, position: "relative", minHeight: "120px" }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={data}
+              cx="50%"
+              cy="95%"
+              startAngle={180}
+              endAngle={0}
+              innerRadius="75%"
+              outerRadius="100%"
+              dataKey="value"
+              stroke="none"
+              cornerRadius={4}
+              paddingAngle={2}
+            >
+              {data.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
+            </Pie>
+            <Tooltip 
+              contentStyle={{ background: "var(--bg-base)", border: "1px solid var(--glass-border)", borderRadius: "8px", color: "var(--text-primary)" }} 
+              itemStyle={{ color: "var(--text-secondary)" }} 
+              formatter={(val: any) => [`${val}%`, '']}
+            />
+          </PieChart>
         </ResponsiveContainer>
-
-        <div style={{
-          marginTop: "14px",
-          fontSize: "12px",
-          color: "#666",
-          background: "#141414",
-          border: "1px solid #2a2a2a",
-          borderRadius: "6px",
-          padding: "8px 12px",
-        }}>
-          {totals.col.toLocaleString()} kg recovered → {totals.bit.toLocaleString()} kg bitumen + {totals.ac.toLocaleString()} kg activated carbon · <span style={{ color: "#22c55e" }}>{pct}% conversion rate</span>
+        
+        {/* Center Text */}
+        <div style={{ position: "absolute", bottom: "10%", left: "50%", transform: "translateX(-50%)", textAlign: "center" }}>
+          <div style={{ fontSize: "38px", fontWeight: 300, color: "var(--text-primary)", lineHeight: 1, letterSpacing: "-0.02em", textShadow: "0 0 16px rgba(177, 178, 181, 0.2)" }}>
+            {pct}%
+          </div>
+          <div style={{ fontSize: "10px", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.1em", marginTop: "6px" }}>
+            Recovery Rate
+          </div>
         </div>
       </div>
     </div>

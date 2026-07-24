@@ -1,16 +1,17 @@
 "use client";
 
 import { ActivityEntry } from "@/lib/mock-data";
+import { AlertTriangle, MapPin, Truck, CheckCircle2, ShieldCheck, Info } from "lucide-react";
 
 type Props = { entries: ActivityEntry[] };
 
-const COLORS: Record<ActivityEntry["type"], string> = {
-  detection:  "#888",
-  alert:      "#d4a017",
-  dispatch:   "#888",
-  collection: "#22c55e",
-  conversion: "#22c55e",
-  info:       "#555",
+const SEVERITY: Record<ActivityEntry["type"], { color: string, icon: any }> = {
+  alert:      { color: "var(--color-med)", icon: <AlertTriangle size={14} /> },
+  detection:  { color: "var(--color-high)", icon: <MapPin size={14} /> },
+  dispatch:   { color: "var(--text-secondary)", icon: <Truck size={14} /> },
+  collection: { color: "var(--color-low)", icon: <ShieldCheck size={14} /> },
+  conversion: { color: "var(--accent-teal)", icon: <CheckCircle2 size={14} /> },
+  info:       { color: "var(--text-tertiary)", icon: <Info size={14} /> },
 };
 
 function timeAgo(ts: string) {
@@ -30,9 +31,9 @@ function portName(id: string) {
 
 export default function ActivityFeed({ entries }: Props) {
   return (
-    <div>
+    <div style={{ padding: "8px" }}>
         {entries.map((entry, i) => {
-          const dotColor = COLORS[entry.type] ?? "#555";
+          const sev = SEVERITY[entry.type] ?? SEVERITY.info;
           return (
             <div
               key={i}
@@ -41,27 +42,30 @@ export default function ActivityFeed({ entries }: Props) {
                 display: "flex",
                 alignItems: "flex-start",
                 gap: "12px",
-                padding: "12px 16px",
-                borderBottom: i < entries.length - 1 ? "1px solid #222" : "none",
+                padding: "12px 14px",
+                marginBottom: "4px",
+                borderLeft: `2px solid ${sev.color}`,
+                background: "rgba(255,255,255,0.02)"
               }}
             >
-              {/* Dot */}
+              {/* Icon */}
               <div style={{
-                width: "6px",
-                height: "6px",
-                borderRadius: "50%",
-                background: dotColor,
+                color: sev.color,
                 flexShrink: 0,
-                marginTop: "5px",
-              }} />
+                marginTop: "2px",
+              }}>
+                {sev.icon}
+              </div>
 
               {/* Text */}
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: "13px", color: "#ccc", lineHeight: 1.4 }}>
+                <div style={{ fontSize: "13px", color: "var(--text-primary)", lineHeight: 1.4, fontWeight: 500 }}>
                   {entry.event}
                 </div>
-                <div style={{ fontSize: "11px", color: "#555", marginTop: "3px" }}>
-                  {portName(entry.portId)} · {timeAgo(entry.timestamp)}
+                <div style={{ fontSize: "11px", color: "var(--text-secondary)", marginTop: "4px", display: "flex", gap: "6px", alignItems: "center" }}>
+                  <span>{portName(entry.portId)}</span>
+                  <span style={{ color: "var(--text-tertiary)" }}>•</span>
+                  <span>{timeAgo(entry.timestamp)}</span>
                 </div>
               </div>
             </div>

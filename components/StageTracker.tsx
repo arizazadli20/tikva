@@ -13,9 +13,6 @@ export default function StageTracker() {
     <div style={{
       display: "flex",
       alignItems: "center",
-      padding: "12px 24px",
-      background: "#161616",
-      borderBottom: "1px solid #2e2e2e",
       gap: "0",
     }}>
       {stages.map((s, i) => {
@@ -30,8 +27,8 @@ export default function StageTracker() {
                 width: "22px",
                 height: "22px",
                 borderRadius: "50%",
-                border: `1px solid ${isNow ? "#22c55e" : done ? "#3d3d3d" : "#2e2e2e"}`,
-                background: isNow ? "#0f2318" : "transparent",
+                border: `1px solid ${isNow ? "var(--color-low)" : done ? "var(--glass-border-light)" : "var(--glass-border)"}`,
+                background: isNow ? "rgba(34, 197, 94, 0.1)" : "transparent",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -39,13 +36,13 @@ export default function StageTracker() {
               }}>
                 {done ? (
                   <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
-                    <path d="M2 6L5 9L10 3" stroke="#555" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M2 6L5 9L10 3" stroke="var(--text-secondary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 ) : (
                   <span style={{
                     fontSize: "10px",
                     fontWeight: 600,
-                    color: isNow ? "#22c55e" : "#555",
+                    color: isNow ? "var(--color-low)" : "var(--text-secondary)",
                   }}>{s.id}</span>
                 )}
               </div>
@@ -55,11 +52,11 @@ export default function StageTracker() {
                 <div style={{
                   fontSize: "12px",
                   fontWeight: 500,
-                  color: isNow ? "#e5e5e5" : done ? "#666" : "#555",
+                  color: isNow ? "var(--text-primary)" : done ? "var(--text-secondary)" : "var(--text-secondary)",
                 }}>
                   {s.label}
                 </div>
-                <div style={{ fontSize: "11px", color: "#555" }}>
+                <div style={{ fontSize: "11px", color: "var(--text-secondary)", opacity: 0.8 }}>
                   {s.sub}
                 </div>
               </div>
@@ -67,10 +64,10 @@ export default function StageTracker() {
 
             {/* Connector */}
             {i < stages.length - 1 && (
-              <div style={{
+               <div style={{
                 width: "48px",
                 height: "1px",
-                background: done ? "#3d3d3d" : "#222",
+                background: done ? "var(--glass-border-light)" : "var(--glass-border)",
                 margin: "0 16px",
                 flexShrink: 0,
               }} />

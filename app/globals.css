@@ -1,9 +1,29 @@
-/* ── Global reset ── */
+/* ── Global reset & Variables ── */
+:root {
+  /* Strict 4-color palette */
+  --bg-base: #1A1D29;        /* Midnight Blue */
+  --card-surface: #3D3F4A;   /* Charcoal Gray */
+  --border-muted: #7D8491;   /* Slate Blue */
+  --text-primary: #B1B2B5;   /* Silver */
+  --text-secondary: #7D8491; /* Slate Blue */
+  
+  /* Glass variations using strict colors */
+  --glass-bg: rgba(61, 63, 74, 0.4);       /* Charcoal Gray with opacity */
+  --glass-bg-hover: rgba(61, 63, 74, 0.6); 
+  --glass-border: rgba(125, 132, 145, 0.15); /* Slate Blue border */
+  --glass-border-light: rgba(125, 132, 145, 0.3);
+  
+  /* Semantic Status Colors (strictly for data visualization) */
+  --color-high: #ef4444; /* Red */
+  --color-med: #f59e0b;  /* Amber */
+  --color-low: #22c55e;  /* Green */
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
-  background: #111111;
-  color: #e5e5e5;
+  background: var(--bg-base);
+  color: var(--text-primary);
   font-family: "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   font-size: 14px;
   line-height: 1.5;
@@ -14,87 +34,107 @@ html, body {
 #__next, body > div:first-child { height: 100%; }
 
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #111111; }
-::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #444; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--text-secondary); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-primary); }
 
-/* ── Leaflet ── */
+/* ── Utilities ── */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* ── Leaflet (Custom Dark Theme) ── */
 .leaflet-container {
-  background: #0a0a0a !important;
+  background: var(--bg-base) !important;
   font-family: inherit;
 }
 .leaflet-popup-content-wrapper {
-  background: #1c1c1c !important;
-  border: 1px solid #2e2e2e !important;
+  background: rgba(26, 29, 41, 0.85) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid var(--glass-border-light) !important;
   border-radius: 10px !important;
   box-shadow: 0 8px 24px rgba(0,0,0,0.5) !important;
-  color: #e5e5e5 !important;
+  color: var(--text-primary) !important;
 }
-.leaflet-popup-tip { background: #1c1c1c !important; }
+.leaflet-popup-tip { background: rgba(26, 29, 41, 0.85) !important; }
 .leaflet-popup-content { margin: 0 !important; }
-.leaflet-popup-close-button { color: #666 !important; top: 10px !important; right: 12px !important; }
-.leaflet-popup-close-button:hover { color: #ccc !important; }
+.leaflet-popup-close-button { color: var(--text-secondary) !important; top: 10px !important; right: 12px !important; }
+.leaflet-popup-close-button:hover { color: var(--text-primary) !important; }
 .leaflet-bar {
-  border: 1px solid #2e2e2e !important;
+  border: 1px solid var(--glass-border) !important;
   border-radius: 6px !important;
-  box-shadow: none !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+  overflow: hidden;
 }
 .leaflet-bar a {
-  background: #1c1c1c !important;
-  border-bottom: 1px solid #2e2e2e !important;
-  color: #888 !important;
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(8px) !important;
+  border-bottom: 1px solid var(--glass-border) !important;
+  color: var(--text-secondary) !important;
   width: 30px !important;
   height: 30px !important;
   line-height: 30px !important;
 }
-.leaflet-bar a:hover { background: #252525 !important; color: #e5e5e5 !important; }
+.leaflet-bar a:hover { background: var(--glass-bg-hover) !important; color: var(--text-primary) !important; }
 .leaflet-bar a:last-child { border-bottom: none !important; }
 .leaflet-control-attribution {
-  background: rgba(17,17,17,0.85) !important;
-  color: #444 !important;
+  background: rgba(26, 29, 41, 0.6) !important;
+  backdrop-filter: blur(4px) !important;
+  color: var(--text-secondary) !important;
   font-size: 9px !important;
 }
-.leaflet-control-attribution a { color: #555 !important; }
+.leaflet-control-attribution a { color: var(--text-primary) !important; }
 
 /* ── Animations ── */
 @keyframes livePulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.4; }
+  0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
 }
 @keyframes markerPulse {
-  0%  { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5); }
-  70% { box-shadow: 0 0 0 12px rgba(34, 197, 94, 0); }
-  100%{ box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+  0%  { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+  70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+  100%{ box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
 }
 @keyframes markerRing {
   0%  { transform: translate(-50%,-50%) scale(1); opacity: 0.5; }
   100%{ transform: translate(-50%,-50%) scale(2.8); opacity: 0; }
 }
-@keyframes barGrow { from { width: 0; } }
 @keyframes spin { to { transform: rotate(360deg); } }
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
 
 .live-dot { animation: livePulse 2s ease-in-out infinite; }
-.bar-grow  { animation: barGrow 0.8s ease-out forwards; }
 .spinner   { animation: spin 0.8s linear infinite; }
 
 /* ── Status pills ── */
 .pill {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   padding: 2px 8px;
   border-radius: 4px;
   font-size: 11px;
   font-weight: 500;
+  border: 1px solid transparent;
 }
-.pill-detected  { background: #2a2a2a; color: #888; }
-.pill-alert     { background: #2d2208; color: #d4a017; border: 1px solid #3d3008; }
-.pill-collected { background: #0f2318; color: #4ade80; border: 1px solid #1a3d28; }
-.pill-converted { background: #0c2218; color: #22c55e; border: 1px solid #1a3828; }
+.pill-detected  { background: rgba(255,255,255,0.05); color: var(--text-secondary); border-color: var(--glass-border); }
+.pill-alert     { background: rgba(245, 158, 11, 0.1); color: var(--color-med); border-color: rgba(245, 158, 11, 0.2); }
+.pill-collected { background: rgba(34, 197, 94, 0.1); color: var(--color-low); border-color: rgba(34, 197, 94, 0.2); }
+.pill-converted { background: rgba(255,255,255,0.05); color: var(--text-primary); border-color: var(--glass-border); }
 
 /* ── Hover rows ── */
-.row-hover { transition: background 0.1s; }
-.row-hover:hover { background: #1e1e1e; }
+.row-hover { transition: background 0.15s ease, border-color 0.15s ease; border: 1px solid transparent; border-radius: 6px; }
+.row-hover:hover { background: var(--glass-bg-hover); border-color: var(--glass-border-light); }
 
-/* ── react-grid-layout ── */
+/* ── react-grid-layout overrides ── */
 .react-grid-layout {
   position: relative;
   transition: height 200ms ease;
@@ -113,104 +153,151 @@ html, body {
 }
 .react-grid-item.react-draggable-dragging {
   transition: none;
-  z-index: 4;
+  z-index: 50;
   will-change: transform;
+  /* Lift effect */
+  transform: scale(1.02);
+  box-shadow: 0 24px 48px rgba(0,0,0,0.5), 0 0 0 1px var(--text-primary) !important;
 }
 .react-grid-item.dropping {
   visibility: hidden;
 }
+/* Custom Placeholder (Drop Zone) */
 .react-grid-item.react-grid-placeholder {
-  background: rgba(34, 197, 94, 0.08);
-  border: 1px dashed rgba(34, 197, 94, 0.25);
-  border-radius: 8px;
+  background: rgba(177, 178, 181, 0.1);
+  border: 2px dashed var(--text-primary);
+  border-radius: 12px;
   transition-duration: 100ms;
   z-index: 2;
   user-select: none;
+  opacity: 0.3;
 }
+
+/* Custom Resize Handle */
 .react-grid-item > .react-resizable-handle {
   position: absolute;
   width: 24px;
   height: 24px;
-  bottom: 0;
-  right: 0;
+  bottom: 4px;
+  right: 4px;
   cursor: se-resize;
   z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  transition: color 0.2s, filter 0.2s;
 }
-.react-grid-item > .react-resizable-handle::after {
-  content: "";
-  position: absolute;
-  right: 5px;
-  bottom: 5px;
-  width: 6px;
-  height: 6px;
-  border-right: 2px solid rgba(255,255,255,0.15);
-  border-bottom: 2px solid rgba(255,255,255,0.15);
-  border-radius: 0 0 2px 0;
-  transition: border-color 0.15s;
+.react-grid-item:hover > .react-resizable-handle {
+  color: var(--text-primary);
 }
-.react-grid-item:hover > .react-resizable-handle::after {
-  border-color: rgba(34, 197, 94, 0.5);
+.react-grid-item > .react-resizable-handle:hover,
+.react-grid-item > .react-resizable-handle:active {
+  color: var(--text-primary);
 }
 .react-resizable { position: relative; }
-.react-resizable-handle {
-  position: absolute;
-  width: 24px;
-  height: 24px;
-  bottom: 0;
-  right: 0;
-  cursor: se-resize;
-}
 
-/* ── Widget card ── */
+/* ── Widget card (Redesign) ── */
 .widget-card {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: #1a1a1a;
-  border: 1px solid #2e2e2e;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
+  /* Extending glass-panel */
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 .widget-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
-  border-bottom: 1px solid #222;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--glass-border);
   flex-shrink: 0;
   cursor: grab;
   user-select: none;
-  background: #161616;
+  background: rgba(0,0,0,0.2); /* Slightly darker header */
 }
 .widget-header:active { cursor: grabbing; }
-.widget-header .drag-dots { opacity: 0.25; transition: opacity 0.15s; }
-.widget-card:hover .widget-header .drag-dots { opacity: 0.6; }
+.widget-header .drag-dots { color: var(--text-secondary); transition: color 0.15s; }
+.widget-card:hover .widget-header .drag-dots { color: var(--text-primary); }
 .widget-body {
   flex: 1;
   overflow: auto;
   min-height: 0;
   padding: 0;
 }
+.widget-body::-webkit-scrollbar { width: 4px; height: 4px; }
+
+/* ── Form Elements (Auth) ── */
+.auth-input {
+  width: 100%;
+  background: rgba(0,0,0,0.2);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+.auth-input:focus {
+  border-color: var(--text-primary);
+  box-shadow: 0 0 0 1px var(--text-primary);
+  background: rgba(0,0,0,0.4);
+}
+.auth-input::placeholder { color: var(--text-secondary); }
+
+.auth-button {
+  width: 100%;
+  background: var(--text-primary);
+  color: var(--bg-base);
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.auth-button:hover {
+  background: #ffffff; /* Brighten silver on hover */
+}
+.auth-button:active { transform: scale(0.98); }
 
 /* ── Reset layout button ── */
 .reset-layout-btn {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 10px;
-  background: transparent;
-  border: 1px solid #2e2e2e;
-  border-radius: 5px;
-  color: #666;
-  font-size: 11px;
+  padding: 6px 12px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
   font-family: inherit;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
 }
 .reset-layout-btn:hover {
-  border-color: #444;
-  color: #aaa;
-  background: #1e1e1e;
+  border-color: var(--glass-border-light);
+  color: var(--text-primary);
+  background: var(--glass-bg-hover);
+}
+.reset-layout-btn:active {
+  transform: scale(0.97);
 }
 
 /* ── Mobile responsive ── */
@@ -224,7 +311,7 @@ html, body {
     width: 100% !important;
     height: 320px !important;
     border-right: none !important;
-    border-bottom: 1px solid #2e2e2e;
+    border-bottom: 1px solid var(--glass-border);
   }
   .dashboard-grid-col {
     overflow: visible !important;

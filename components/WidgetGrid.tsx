@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef, ReactNode } from "react";
 import { ResponsiveGridLayout, LayoutItem, ResponsiveLayouts } from "react-grid-layout";
+import { RotateCcw, Activity, ShieldAlert, Navigation, RefreshCw, History, BarChart2 } from "lucide-react";
 import WidgetCard from "./WidgetCard";
 
 const STORAGE_KEY  = "peykgoz-dashboard-layout-v1";
@@ -9,12 +10,12 @@ const DRAG_HANDLE  = "widget-header";
 
 /** Default 12-column layout */
 const DEFAULT_LAYOUT: LayoutItem[] = [
-  { i: "kpi",        x: 0,  y: 0,  w: 4,  h: 4,  minW: 3, maxW: 12, minH: 3 },
-  { i: "riskzone",   x: 4,  y: 0,  w: 4,  h: 4,  minW: 3, maxW: 12, minH: 3 },
-  { i: "vessels",    x: 8,  y: 0,  w: 4,  h: 4,  minW: 3, maxW: 12, minH: 3 },
-  { i: "activity",   x: 0,  y: 4,  w: 4,  h: 6,  minW: 3, maxW: 12, minH: 4 },
-  { i: "conversion", x: 4,  y: 4,  w: 8,  h: 6,  minW: 4, maxW: 12, minH: 4 },
-  { i: "history",    x: 0,  y: 10, w: 12, h: 6,  minW: 6, maxW: 12, minH: 4 },
+  { i: "kpi",        x: 0,  y: 0,  w: 4,  h: 5,  minW: 3, maxW: 12, minH: 4 },
+  { i: "riskzone",   x: 4,  y: 0,  w: 4,  h: 4,  minW: 3, maxW: 12, minH: 4 },
+  { i: "vessels",    x: 8,  y: 0,  w: 4,  h: 4,  minW: 3, maxW: 12, minH: 4 },
+  { i: "activity",   x: 0,  y: 4,  w: 4,  h: 6,  minW: 3, maxW: 12, minH: 5 },
+  { i: "conversion", x: 4,  y: 4,  w: 8,  h: 6,  minW: 4, maxW: 12, minH: 5 },
+  { i: "history",    x: 0,  y: 10, w: 12, h: 6,  minW: 6, maxW: 12, minH: 5 },
 ];
 
 const DEFAULT_LAYOUTS: ResponsiveLayouts = {
@@ -32,6 +33,15 @@ const WIDGET_TITLES: Record<string, string> = {
   activity:   "Activity Log",
   conversion: "Circular Recovery",
   history:    "Detection History",
+};
+
+const WIDGET_ICONS: Record<string, ReactNode> = {
+  kpi:        <BarChart2 size={16} strokeWidth={2.5} />,
+  riskzone:   <ShieldAlert size={16} strokeWidth={2.5} />,
+  vessels:    <Navigation size={16} strokeWidth={2.5} />,
+  activity:   <Activity size={16} strokeWidth={2.5} />,
+  conversion: <RefreshCw size={16} strokeWidth={2.5} />,
+  history:    <History size={16} strokeWidth={2.5} />,
 };
 
 export type WidgetDef = {
@@ -90,12 +100,9 @@ export default function WidgetGrid({ widgets }: Props) {
   return (
     <div ref={containerRef} style={{ position: "relative" }}>
       {/* Toolbar */}
-      <div style={{ display: "flex", justifyContent: "flex-end", padding: "10px 12px 0" }}>
+      <div style={{ display: "flex", justifyContent: "flex-end", padding: "12px 16px 0", zIndex: 20, position: "relative" }}>
         <button className="reset-layout-btn" onClick={handleReset} title="Reset to default layout">
-          <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
-            <path d="M1 6a5 5 0 1 0 1.1-3.1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-            <path d="M1 2v3h3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+          <RotateCcw size={14} />
           Reset layout
         </button>
       </div>
@@ -107,8 +114,8 @@ export default function WidgetGrid({ widgets }: Props) {
         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
         cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
         rowHeight={72}
-        margin={[10, 10]}
-        containerPadding={[12, 8]}
+        margin={[16, 16]}
+        containerPadding={[16, 8]}
         dragConfig={{ handle: `.${DRAG_HANDLE}`, enabled: !isMobile }}
         resizeConfig={{ handles: ["se"], enabled: !isMobile }}
       >
@@ -117,7 +124,11 @@ export default function WidgetGrid({ widgets }: Props) {
           if (!widget) return null;
           return (
             <div key={i}>
-              <WidgetCard title={WIDGET_TITLES[i] ?? i} dragHandleClass={DRAG_HANDLE}>
+              <WidgetCard 
+                title={WIDGET_TITLES[i] ?? i} 
+                icon={WIDGET_ICONS[i]}
+                dragHandleClass={DRAG_HANDLE}
+              >
                 {widget.content}
               </WidgetCard>
             </div>
